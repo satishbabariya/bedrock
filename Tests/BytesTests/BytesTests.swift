@@ -195,3 +195,25 @@ import Testing
     let slice = original[1..<4]
     #expect(slice == Bytes([0x20, 0x30, 0x40]))
 }
+
+@Test func bytesTryPeekAllVariantsSuccess() throws {
+    // Buffer of distinct bytes for unambiguous assertions.
+    let b = Bytes([0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED, 0xCA, 0xFE,
+                   0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFE])
+
+    // Unsigned big-endian
+    #expect(try b.tryPeekUInt8 (at: 0) == 0xDE)
+    #expect(try b.tryPeekUInt16(at: 0, endianness: .big) == 0xDEAD)
+    #expect(try b.tryPeekUInt32(at: 0, endianness: .big) == 0xDEADBEEF)
+    #expect(try b.tryPeekUInt64(at: 0, endianness: .big) == 0xDEADBEEFFEEDCAFE)
+
+    // Signed (delegate via bitPattern)
+    #expect(try b.tryPeekInt8 (at: 0) == Int8(bitPattern: 0xDE))
+    #expect(try b.tryPeekInt16(at: 0, endianness: .big) == Int16(bitPattern: 0xDEAD))
+    #expect(try b.tryPeekInt32(at: 0, endianness: .big) == Int32(bitPattern: 0xDEADBEEF))
+    #expect(try b.tryPeekInt64(at: 8, endianness: .big) == -2)  // 0xFFFF…FFFE
+
+    // tryPeekBytes happy path
+    let slice = try b.tryPeekBytes(at: 4, length: 4)
+    #expect(Array(slice) == [0xFE, 0xED, 0xCA, 0xFE])
+}

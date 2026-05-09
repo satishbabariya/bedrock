@@ -138,3 +138,33 @@ import Testing
         try r.trySkip(-1)
     }
 }
+
+@Test func readerTryReadAllVariantsSuccess() throws {
+    var r = BytesReader(Bytes([0xDE,
+                               0xAD, 0xBE,
+                               0xEF, 0xFE, 0xED, 0xCA,
+                               0xFE, 0xCA, 0xFE, 0xBA, 0xBE, 0xDE, 0xAD, 0xBE,
+                               0xFF,                                   // tryReadInt8
+                               0xFF, 0xFE,                             // tryReadInt16
+                               0xFF, 0xFF, 0xFF, 0xFD,                 // tryReadInt32
+                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFC,  // tryReadInt64
+                               0x01, 0x02, 0x03]))
+
+    // Unsigned widths in sequence
+    #expect(try r.tryReadUInt8() == 0xDE)
+    #expect(try r.tryReadUInt16(endianness: .big) == 0xADBE)
+    #expect(try r.tryReadUInt32(endianness: .big) == 0xEFFEEDCA)
+    #expect(try r.tryReadUInt64(endianness: .big) == 0xFECAFEBABEDEADBE)
+
+    // Signed widths
+    #expect(try r.tryReadInt8() == -1)
+    #expect(try r.tryReadInt16(endianness: .big) == -2)
+    #expect(try r.tryReadInt32(endianness: .big) == -3)
+    #expect(try r.tryReadInt64(endianness: .big) == -4)
+
+    // tryReadBytes happy path
+    let tail = try r.tryReadBytes(length: 3)
+    #expect(Array(tail) == [0x01, 0x02, 0x03])
+    let exhausted = r.isExhausted
+    #expect(exhausted)
+}
