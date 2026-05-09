@@ -7,6 +7,8 @@
 | **Depends on** | [Layer 0](layer-00-stdlib-gaps.md) |
 | **Dependents** | [Layer 2](layer-02-text-unicode.md), [Layer 3](layer-03-collections.md), [Layer 5](layer-05-time-date.md), [Layer 7](layer-07-hashing.md), [Layer 8](layer-08-filesystem-os.md), [Layer 11](layer-11-async-runtime.md), [Layer 12](layer-12-cryptography.md), [Layer 14](layer-14-serialization-framework.md), [Layer 15](layer-15-data-formats.md), [Layer 16](layer-16-compression.md), [Layer 17](layer-17-networking-protocols.md), [Layer 18](layer-18-http-stack.md), [Layer 20](layer-20-databases-storage.md), [Layer 21](layer-21-observability.md), [Layer 22](layer-22-config-secrets.md), [Layer 23](layer-23-cli-terminal.md) |
 
+> **Status:** core bytes module shipping in `Sources/Bytes/` ([design](../docs/superpowers/specs/2026-05-09-bytes-design.md), [plan](../docs/superpowers/plans/2026-05-09-bytes-module.md)). Remaining categories (Hex, Base64, varints, UUID, URL/IDNA, etc.) are tracked here pending their own designs.
+
 The absolute foundation. Without these, no I/O, no protocols, nothing.
 
 ## Libraries
