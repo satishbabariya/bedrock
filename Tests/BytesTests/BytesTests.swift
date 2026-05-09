@@ -44,3 +44,46 @@ import Testing
     #expect(b.contains(0x02))
     #expect(!b.contains(0x99))
 }
+
+@Test func bytesPrefix() {
+    let b = Bytes([0x01, 0x02, 0x03, 0x04])
+    #expect(Array(b.prefix(2)) == [0x01, 0x02])
+    #expect(Array(b.prefix(0)) == [])
+    #expect(Array(b.prefix(99)) == [0x01, 0x02, 0x03, 0x04])  // clamps
+}
+
+@Test func bytesSuffix() {
+    let b = Bytes([0x01, 0x02, 0x03, 0x04])
+    #expect(Array(b.suffix(2)) == [0x03, 0x04])
+    #expect(Array(b.suffix(0)) == [])
+    #expect(Array(b.suffix(99)) == [0x01, 0x02, 0x03, 0x04])  // clamps
+}
+
+@Test func bytesDropFirst() {
+    let b = Bytes([0x01, 0x02, 0x03, 0x04])
+    #expect(Array(b.dropFirst(2)) == [0x03, 0x04])
+    #expect(Array(b.dropFirst(0)) == [0x01, 0x02, 0x03, 0x04])
+    #expect(Array(b.dropFirst(99)) == [])  // clamps
+}
+
+@Test func bytesDropLast() {
+    let b = Bytes([0x01, 0x02, 0x03, 0x04])
+    #expect(Array(b.dropLast(2)) == [0x01, 0x02])
+    #expect(Array(b.dropLast(0)) == [0x01, 0x02, 0x03, 0x04])
+    #expect(Array(b.dropLast(99)) == [])  // clamps
+}
+
+@Test func bytesRangeSubscript() {
+    let b = Bytes([0x10, 0x20, 0x30, 0x40, 0x50])
+    let mid = b[1..<4]
+    #expect(Array(mid) == [0x20, 0x30, 0x40])
+}
+
+@Test func bytesSlicingIsZeroCopy() {
+    let b = Bytes([0x01, 0x02, 0x03, 0x04])
+    let mid = b[1..<3]
+    let baseAddrOriginal = b.withUnsafeBytes { $0.baseAddress! }
+    let baseAddrSlice = mid.withUnsafeBytes { $0.baseAddress! }
+    // Slice points 1 byte into the original storage.
+    #expect(baseAddrSlice == baseAddrOriginal.advanced(by: 1))
+}

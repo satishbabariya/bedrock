@@ -56,3 +56,48 @@ extension Bytes: ExpressibleByArrayLiteral {
         self.init(elements)
     }
 }
+
+extension Bytes {
+    public func prefix(_ n: Int) -> Bytes {
+        let take = Swift.max(0, Swift.min(n, length))
+        return Bytes(storage: storage, offset: offset, length: take)
+    }
+
+    public func suffix(_ n: Int) -> Bytes {
+        let take = Swift.max(0, Swift.min(n, length))
+        return Bytes(storage: storage,
+                     offset: offset + (length - take),
+                     length: take)
+    }
+
+    public func dropFirst(_ n: Int) -> Bytes {
+        let drop = Swift.max(0, Swift.min(n, length))
+        return Bytes(storage: storage,
+                     offset: offset + drop,
+                     length: length - drop)
+    }
+
+    public func dropLast(_ n: Int) -> Bytes {
+        let drop = Swift.max(0, Swift.min(n, length))
+        return Bytes(storage: storage,
+                     offset: offset,
+                     length: length - drop)
+    }
+
+    public subscript(range: Range<Int>) -> Bytes {
+        precondition(range.lowerBound >= 0 && range.upperBound <= length,
+                     "Bytes range out of bounds")
+        return Bytes(storage: storage,
+                     offset: offset + range.lowerBound,
+                     length: range.count)
+    }
+
+    public func withUnsafeBytes<R>(
+        _ body: (UnsafeRawBufferPointer) throws -> R
+    ) rethrows -> R {
+        let start = storage.pointer.advanced(by: offset)
+        let buffer = UnsafeRawBufferPointer(start: length == 0 ? nil : start,
+                                            count: length)
+        return try body(buffer)
+    }
+}
