@@ -37,7 +37,11 @@ public struct BytesMut {
 
     public mutating func clear() {
         _count = 0
-        // Storage is retained; growth is lazy on next put.
+        // If the storage is shared (a snapshot is outstanding), release our
+        // claim on it; the next put will lazily allocate fresh storage.
+        if !isKnownUniquelyReferenced(&storage) {
+            storage = .empty
+        }
     }
 
     /// Ensures the storage can hold `_count + additional` bytes total, performing
@@ -54,7 +58,7 @@ public struct BytesMut {
             newCapacity = storage.capacity
         } else {
             let doubled = storage.capacity &* 2
-            newCapacity = Swift.max(required, doubled, 64)
+            newCapacity = Swift.min(Swift.max(required, doubled, 64), Int.max / 2)
         }
         let newStorage = BytesStorage(capacity: newCapacity)
         if _count > 0 {

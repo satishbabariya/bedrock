@@ -65,3 +65,28 @@ import Testing
         #expect(snap.count == expectedCount)
     }
 }
+
+@Test func clearReleasesSharedStorage() {
+    var m = BytesMut(capacity: 64)
+    m.putBytes([0x01, 0x02, 0x03] as [UInt8])
+    let snap = m.snapshot()  // makes storage shared
+    m.clear()
+    // After clear() on shared storage, the builder no longer holds the
+    // original allocation; capacity drops to 0 (empty singleton).
+    #expect(m.capacity == 0)
+    // Snapshot is unaffected.
+    #expect(Array(snap) == [0x01, 0x02, 0x03])
+    // A fresh put after clear allocates new storage independent of snapshot.
+    m.putUInt8(0xAA)
+    #expect(Array(m.snapshot()) == [0xAA])
+    #expect(Array(snap) == [0x01, 0x02, 0x03])
+}
+
+@Test func clearOnUniqueStorageRetainsCapacity() {
+    var m = BytesMut(capacity: 64)
+    m.putBytes([0x01, 0x02] as [UInt8])
+    let cap = m.capacity
+    m.clear()  // unique → retain
+    #expect(m.capacity == cap)
+    #expect(m.count == 0)
+}
