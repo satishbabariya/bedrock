@@ -26,5 +26,10 @@ internal func storeFixed<T: FixedWidthInteger>(
     case .little: raw = value.littleEndian
     case .host:   raw = value
     }
-    base.storeBytes(of: raw, toByteOffset: offset, as: T.self)
+    // copyMemory is alignment-agnostic on both source and destination,
+    // making this the canonical Swift idiom for unaligned writes.
+    withUnsafeBytes(of: raw) { src in
+        base.advanced(by: offset)
+            .copyMemory(from: src.baseAddress!, byteCount: src.count)
+    }
 }
