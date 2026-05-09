@@ -126,3 +126,19 @@ extension BytesReader {
         return v
     }
 }
+
+extension BytesReader {
+    public mutating func skip(_ n: Int) -> Bool {
+        guard n >= 0, bytes.count - cursor >= n else { return false }
+        cursor += n
+        return true
+    }
+
+    public mutating func trySkip(_ n: Int) throws {
+        if n < 0 { throw BytesError.invalidLength(n) }
+        guard bytes.count - cursor >= n else {
+            throw BytesError.shortRead(needed: n, available: remaining)
+        }
+        cursor += n
+    }
+}

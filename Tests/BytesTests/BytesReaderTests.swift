@@ -104,3 +104,37 @@ import Testing
         _ = try r.tryReadBytes(length: 5)
     }
 }
+
+@Test func readerSkipAdvances() {
+    var r = BytesReader(Bytes([0x01, 0x02, 0x03, 0x04]))
+    #expect(r.skip(2) == true)
+    #expect(r.consumed == 2)
+    #expect(r.readUInt8() == 0x03)
+}
+
+@Test func readerSkipPastEndReturnsFalse() {
+    var r = BytesReader(Bytes([0x01, 0x02]))
+    #expect(r.skip(5) == false)
+    #expect(r.consumed == 0)             // unchanged on failure
+}
+
+@Test func readerSkipNegativeReturnsFalse() {
+    var r = BytesReader(Bytes([0x01]))
+    #expect(r.skip(-1) == false)
+    #expect(r.consumed == 0)
+}
+
+@Test func readerTrySkipThrowsOnShortRead() {
+    var r = BytesReader(Bytes([0x01, 0x02]))
+    #expect(throws: BytesError.shortRead(needed: 5, available: 2)) {
+        try r.trySkip(5)
+    }
+    #expect(r.consumed == 0)
+}
+
+@Test func readerTrySkipThrowsOnNegative() {
+    var r = BytesReader(Bytes([0x01]))
+    #expect(throws: BytesError.invalidLength(-1)) {
+        try r.trySkip(-1)
+    }
+}
