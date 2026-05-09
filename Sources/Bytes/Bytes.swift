@@ -220,3 +220,21 @@ extension Bytes {
         return v
     }
 }
+
+extension Bytes: Hashable {
+    public static func == (lhs: Bytes, rhs: Bytes) -> Bool {
+        guard lhs.length == rhs.length else { return false }
+        return lhs.withUnsafeBytes { l in
+            rhs.withUnsafeBytes { r in
+                if l.count == 0 { return true }
+                return l.elementsEqual(r)
+            }
+        }
+    }
+
+    public func hash(into hasher: inout Hasher) {
+        withUnsafeBytes { buf in
+            hasher.combine(bytes: buf)
+        }
+    }
+}

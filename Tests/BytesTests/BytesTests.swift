@@ -166,3 +166,32 @@ import Testing
         _ = try b.tryPeekBytes(at: 0, length: 5)
     }
 }
+
+@Test func bytesEqualByContent() {
+    let a = Bytes([0x01, 0x02, 0x03])
+    let b = Bytes([0x01, 0x02, 0x03])
+    let c = Bytes([0x01, 0x02])
+    let d = Bytes([0x01, 0x02, 0x04])
+    #expect(a == b)
+    #expect(a != c)
+    #expect(a != d)
+}
+
+@Test func bytesEmptyEquality() {
+    #expect(Bytes() == Bytes.empty)
+    #expect(Bytes() == Bytes([]))
+}
+
+@Test func bytesHashableConsistent() {
+    let a = Bytes([0xDE, 0xAD, 0xBE, 0xEF])
+    let b = Bytes([0xDE, 0xAD, 0xBE, 0xEF])
+    var seen = Set<Bytes>()
+    seen.insert(a)
+    #expect(seen.contains(b))
+}
+
+@Test func bytesSliceEqualsArray() {
+    let original = Bytes([0x10, 0x20, 0x30, 0x40, 0x50])
+    let slice = original[1..<4]
+    #expect(slice == Bytes([0x20, 0x30, 0x40]))
+}
