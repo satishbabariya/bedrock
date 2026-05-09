@@ -101,3 +101,64 @@ extension Bytes {
         return try body(buffer)
     }
 }
+
+extension Bytes {
+    @inlinable
+    public func peekUInt8(at offset: Int) -> UInt8? {
+        guard offset >= 0, offset + 1 <= length else { return nil }
+        return storage.pointer.load(
+            fromByteOffset: self.offset + offset, as: UInt8.self)
+    }
+
+    @inlinable
+    public func peekInt8(at offset: Int) -> Int8? {
+        guard let u = peekUInt8(at: offset) else { return nil }
+        return Int8(bitPattern: u)
+    }
+
+    @inlinable
+    public func peekUInt16(at offset: Int, endianness: Endianness) -> UInt16? {
+        guard offset >= 0, offset + 2 <= length else { return nil }
+        return loadFixed(UInt16.self, from: storage.pointer,
+                         offset: self.offset + offset, endianness: endianness)
+    }
+
+    @inlinable
+    public func peekInt16(at offset: Int, endianness: Endianness) -> Int16? {
+        peekUInt16(at: offset, endianness: endianness).map(Int16.init(bitPattern:))
+    }
+
+    @inlinable
+    public func peekUInt32(at offset: Int, endianness: Endianness) -> UInt32? {
+        guard offset >= 0, offset + 4 <= length else { return nil }
+        return loadFixed(UInt32.self, from: storage.pointer,
+                         offset: self.offset + offset, endianness: endianness)
+    }
+
+    @inlinable
+    public func peekInt32(at offset: Int, endianness: Endianness) -> Int32? {
+        peekUInt32(at: offset, endianness: endianness).map(Int32.init(bitPattern:))
+    }
+
+    @inlinable
+    public func peekUInt64(at offset: Int, endianness: Endianness) -> UInt64? {
+        guard offset >= 0, offset + 8 <= length else { return nil }
+        return loadFixed(UInt64.self, from: storage.pointer,
+                         offset: self.offset + offset, endianness: endianness)
+    }
+
+    @inlinable
+    public func peekInt64(at offset: Int, endianness: Endianness) -> Int64? {
+        peekUInt64(at: offset, endianness: endianness).map(Int64.init(bitPattern:))
+    }
+
+    @inlinable
+    public func peekBytes(at offset: Int, length: Int) -> Bytes? {
+        guard offset >= 0, length >= 0, offset + length <= self.length else {
+            return nil
+        }
+        return Bytes(storage: storage,
+                     offset: self.offset + offset,
+                     length: length)
+    }
+}

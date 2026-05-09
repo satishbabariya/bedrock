@@ -87,3 +87,48 @@ import Testing
     // Slice points 1 byte into the original storage.
     #expect(baseAddrSlice == baseAddrOriginal.advanced(by: 1))
 }
+
+@Test func bytesPeekUInt8() {
+    let b = Bytes([0xAB, 0xCD])
+    #expect(b.peekUInt8(at: 0) == 0xAB)
+    #expect(b.peekUInt8(at: 1) == 0xCD)
+    #expect(b.peekUInt8(at: 2) == nil)
+    #expect(b.peekUInt8(at: -1) == nil)
+}
+
+@Test func bytesPeekUInt16BigLittle() {
+    let b = Bytes([0xDE, 0xAD])
+    #expect(b.peekUInt16(at: 0, endianness: .big) == 0xDEAD)
+    #expect(b.peekUInt16(at: 0, endianness: .little) == 0xADDE)
+    #expect(b.peekUInt16(at: 1, endianness: .big) == nil)  // only 1 byte left
+}
+
+@Test func bytesPeekUInt32BigLittle() {
+    let b = Bytes([0xDE, 0xAD, 0xBE, 0xEF])
+    #expect(b.peekUInt32(at: 0, endianness: .big) == 0xDEADBEEF)
+    #expect(b.peekUInt32(at: 0, endianness: .little) == 0xEFBEADDE)
+    #expect(b.peekUInt32(at: 1, endianness: .big) == nil)
+}
+
+@Test func bytesPeekUInt64BigLittle() {
+    let b = Bytes([0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08])
+    #expect(b.peekUInt64(at: 0, endianness: .big) == 0x0102030405060708)
+    #expect(b.peekUInt64(at: 0, endianness: .little) == 0x0807060504030201)
+}
+
+@Test func bytesPeekSignedIntegers() {
+    let b = Bytes([0xFF, 0xFF, 0xFF, 0xFE])
+    #expect(b.peekInt8(at: 0) == -1)
+    #expect(b.peekInt16(at: 0, endianness: .big) == -1)
+    #expect(b.peekInt32(at: 0, endianness: .big) == -2)
+}
+
+@Test func bytesPeekBytes() {
+    let b = Bytes([0x01, 0x02, 0x03, 0x04, 0x05])
+    let slice = b.peekBytes(at: 1, length: 3)
+    #expect(slice != nil)
+    #expect(Array(slice!) == [0x02, 0x03, 0x04])
+    #expect(b.peekBytes(at: 1, length: 99) == nil)         // out of bounds
+    #expect(b.peekBytes(at: -1, length: 1) == nil)         // negative offset
+    #expect(b.peekBytes(at: 0, length: -1) == nil)         // negative length
+}
