@@ -32,10 +32,13 @@ import Testing
 @Test func snapshotForcesCoWOnNextMutation() {
     var m = BytesMut(capacity: 64)
     m.putBytes([0xAA, 0xBB] as [UInt8])
-    let snapAddr = m.snapshot().withUnsafeBytes { $0.baseAddress! }
-    m.putUInt8(0xCC)  // CoW expected because snapshot still alive
+    let snap = m.snapshot()  // hold the snapshot alive
+    let snapAddr = snap.withUnsafeBytes { $0.baseAddress! }
+    m.putUInt8(0xCC)  // CoW expected because snap is still alive here
     let postAddr = m.snapshot().withUnsafeBytes { $0.baseAddress! }
     #expect(snapAddr != postAddr)
+    // Use snap after the CoW point to keep ARC from optimizing it away.
+    #expect(snap.count == 2)
 }
 
 @Test func freezeIntoBytesIsZeroCopyOnImmediateAccess() {
