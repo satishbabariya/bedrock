@@ -1,0 +1,134 @@
+// Bedrock layer dependency graph.
+// Edges point from a layer to its prerequisites (A -> B means A depends on B).
+// Render: dot -Tsvg dependencies.dot -o dependencies.svg
+digraph Bedrock {
+    rankdir=BT;
+    bgcolor="white";
+    node [shape=box, style="rounded,filled", fontname="Helvetica", fontsize=10, margin="0.15,0.08"];
+    edge [color="#6e7781", arrowsize=0.7];
+
+    // Phase 1 — Foundations
+    L00 [label="Layer 0\nStdlib Gaps",        fillcolor="#e8f4ff", color="#1f6feb"];
+    L01 [label="Layer 1\nPrimitives",         fillcolor="#e8f4ff", color="#1f6feb"];
+    L02 [label="Layer 2\nText & Unicode",     fillcolor="#e8f4ff", color="#1f6feb"];
+    L03 [label="Layer 3\nCollections",        fillcolor="#e8f4ff", color="#1f6feb"];
+    L04 [label="Layer 4\nNumeric & Math",     fillcolor="#e8f4ff", color="#1f6feb"];
+    L05 [label="Layer 5\nTime & Date",        fillcolor="#e8f4ff", color="#1f6feb"];
+    L06 [label="Layer 6\nRandom",             fillcolor="#e8f4ff", color="#1f6feb"];
+    L07 [label="Layer 7\nHashing",            fillcolor="#e8f4ff", color="#1f6feb"];
+
+    // Phase 2 — OS Layer
+    L08 [label="Layer 8\nFilesystem & OS",    fillcolor="#e8fff0", color="#1a7f37"];
+    L09 [label="Layer 9\nProcess & IPC",      fillcolor="#e8fff0", color="#1a7f37"];
+    L10 [label="Layer 10\nConcurrency",       fillcolor="#e8fff0", color="#1a7f37"];
+
+    // Phase 3 — Async Reactor
+    L11 [label="Layer 11\nAsync Runtime",     fillcolor="#fff4d6", color="#bf8700"];
+
+    // Phase 4 — Crypto + TLS
+    L12 [label="Layer 12\nCryptography",      fillcolor="#fde2e2", color="#cf222e"];
+    L13 [label="Layer 13\nTLS & PKI",         fillcolor="#fde2e2", color="#cf222e"];
+
+    // Phase 5 — Serialization
+    L14 [label="Layer 14\nSerialization",     fillcolor="#f3e8ff", color="#8250df"];
+    L15 [label="Layer 15\nData Formats",      fillcolor="#f3e8ff", color="#8250df"];
+    L16 [label="Layer 16\nCompression",       fillcolor="#f3e8ff", color="#8250df"];
+
+    // Phase 6 — Networking
+    L17 [label="Layer 17\nNetworking",        fillcolor="#e2f5ff", color="#0969da"];
+    L18 [label="Layer 18\nHTTP Stack",        fillcolor="#e2f5ff", color="#0969da"];
+
+    // Phase 7 — Web Frameworks
+    L19 [label="Layer 19\nWeb Frameworks",    fillcolor="#ffe2f0", color="#bf3989"];
+
+    // Phase 8 — Databases
+    L20 [label="Layer 20\nDatabases",         fillcolor="#e8e8ff", color="#5a5aff"];
+
+    // Phase 9 — Observability
+    L21 [label="Layer 21\nObservability",     fillcolor="#ffead5", color="#a5670a"];
+
+    // Phase 10 — Configuration & CLI
+    L22 [label="Layer 22\nConfig & Secrets",  fillcolor="#d6ffe2", color="#0a7f3f"];
+    L23 [label="Layer 23\nCLI & Terminal",    fillcolor="#d6ffe2", color="#0a7f3f"];
+
+    // Phase 11 — Macros & Codegen
+    L24 [label="Layer 24\nMacros & Codegen",  fillcolor="#ffd6d6", color="#a5310a"];
+
+    // Phase 12 — Testing
+    L25 [label="Layer 25\nTesting",           fillcolor="#d6efff", color="#0a4ea5"];
+
+    // Phase 13 — Compiler / WASM
+    L26 [label="Layer 26\nCompiler Infra",    fillcolor="#f0d6ff", color="#5a0aa5"];
+    L27 [label="Layer 27\nWASM Tooling",      fillcolor="#f0d6ff", color="#5a0aa5"];
+
+    // Phase 14 — Cloud / Distributed
+    L28 [label="Layer 28\nCloud & Distributed", fillcolor="#ffe8b3", color="#7a5a0a"];
+
+    // Phase 1 internal edges
+    L01 -> L00;
+    L02 -> L01;
+    L03 -> L00; L03 -> L01; L03 -> L07;
+    L04 -> L00;
+    L05 -> L01; L05 -> L02;
+    L06 -> L00;
+    L07 -> L01;
+
+    // Phase 2 internal + into Phase 1
+    L08 -> L01;
+    L09 -> L08; L09 -> L10;
+    L10 -> L00;
+
+    // Phase 3
+    L11 -> L01; L11 -> L08; L11 -> L10;
+
+    // Phase 4
+    L12 -> L01; L12 -> L04; L12 -> L06;
+    L13 -> L11; L13 -> L12; L13 -> L14;
+
+    // Phase 5
+    L14 -> L01; L14 -> L24;
+    L15 -> L01; L15 -> L02; L15 -> L14;
+    L16 -> L01;
+
+    // Phase 6
+    L17 -> L01; L17 -> L11; L17 -> L13;
+    L18 -> L01; L18 -> L05; L18 -> L14; L18 -> L16; L18 -> L17;
+
+    // Phase 7
+    L19 -> L12; L19 -> L14; L19 -> L18; L19 -> L24;
+
+    // Phase 8
+    L20 -> L11; L20 -> L14; L20 -> L16; L20 -> L17; L20 -> L18;
+
+    // Phase 9
+    L21 -> L01; L21 -> L07; L21 -> L11; L21 -> L14;
+
+    // Phase 10
+    L22 -> L01; L22 -> L08; L22 -> L14;
+    L23 -> L01; L23 -> L08; L23 -> L09; L23 -> L24;
+
+    // Phase 11
+    L24 -> L01;
+
+    // Phase 12
+    L25 -> L01; L25 -> L14; L25 -> L24;
+
+    // Phase 13
+    L26 -> L01; L26 -> L03; L26 -> L24;
+    L27 -> L11; L27 -> L26;
+
+    // Phase 14
+    L28 -> L11; L28 -> L14; L28 -> L18; L28 -> L20; L28 -> L21;
+
+    // Phase clustering by rank to keep the layered look
+    { rank=same; L00; L04; L06; }
+    { rank=same; L01; L07; L10; }
+    { rank=same; L02; L03; L08; }
+    { rank=same; L05; L09; L24; }
+    { rank=same; L11; L12; L16; }
+    { rank=same; L13; L14; L25; L26; }
+    { rank=same; L15; L17; L22; L27; }
+    { rank=same; L18; L21; L23; }
+    { rank=same; L19; L20; }
+    { rank=same; L28; }
+}
