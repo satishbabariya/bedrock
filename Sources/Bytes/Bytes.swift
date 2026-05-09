@@ -105,7 +105,7 @@ extension Bytes {
 extension Bytes {
     @inlinable
     public func peekUInt8(at offset: Int) -> UInt8? {
-        guard offset >= 0, offset + 1 <= length else { return nil }
+        guard offset >= 0, length - offset >= 1 else { return nil }
         return storage.pointer.load(
             fromByteOffset: self.offset + offset, as: UInt8.self)
     }
@@ -118,7 +118,7 @@ extension Bytes {
 
     @inlinable
     public func peekUInt16(at offset: Int, endianness: Endianness) -> UInt16? {
-        guard offset >= 0, offset + 2 <= length else { return nil }
+        guard offset >= 0, length - offset >= 2 else { return nil }
         return loadFixed(UInt16.self, from: storage.pointer,
                          offset: self.offset + offset, endianness: endianness)
     }
@@ -130,7 +130,7 @@ extension Bytes {
 
     @inlinable
     public func peekUInt32(at offset: Int, endianness: Endianness) -> UInt32? {
-        guard offset >= 0, offset + 4 <= length else { return nil }
+        guard offset >= 0, length - offset >= 4 else { return nil }
         return loadFixed(UInt32.self, from: storage.pointer,
                          offset: self.offset + offset, endianness: endianness)
     }
@@ -142,7 +142,7 @@ extension Bytes {
 
     @inlinable
     public func peekUInt64(at offset: Int, endianness: Endianness) -> UInt64? {
-        guard offset >= 0, offset + 8 <= length else { return nil }
+        guard offset >= 0, length - offset >= 8 else { return nil }
         return loadFixed(UInt64.self, from: storage.pointer,
                          offset: self.offset + offset, endianness: endianness)
     }
@@ -154,7 +154,9 @@ extension Bytes {
 
     @inlinable
     public func peekBytes(at offset: Int, length: Int) -> Bytes? {
-        guard offset >= 0, length >= 0, offset + length <= self.length else {
+        guard offset >= 0,
+              length >= 0,
+              self.length - offset >= length else {
             return nil
         }
         return Bytes(storage: storage,

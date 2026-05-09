@@ -114,13 +114,17 @@ import Testing
     let b = Bytes([0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08])
     #expect(b.peekUInt64(at: 0, endianness: .big) == 0x0102030405060708)
     #expect(b.peekUInt64(at: 0, endianness: .little) == 0x0807060504030201)
+    #expect(b.peekUInt64(at: 1, endianness: .big) == nil)  // only 7 bytes left
 }
 
 @Test func bytesPeekSignedIntegers() {
-    let b = Bytes([0xFF, 0xFF, 0xFF, 0xFE])
+    let b = Bytes([0xFF, 0xFF, 0xFF, 0xFE,
+                   0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF])
     #expect(b.peekInt8(at: 0) == -1)
     #expect(b.peekInt16(at: 0, endianness: .big) == -1)
     #expect(b.peekInt32(at: 0, endianness: .big) == -2)
+    #expect(b.peekInt64(at: 4, endianness: .big) == -1)
+    #expect(b.peekInt64(at: 99, endianness: .big) == nil)  // OOB
 }
 
 @Test func bytesPeekBytes() {
