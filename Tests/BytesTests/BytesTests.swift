@@ -136,3 +136,33 @@ import Testing
     #expect(b.peekBytes(at: -1, length: 1) == nil)         // negative offset
     #expect(b.peekBytes(at: 0, length: -1) == nil)         // negative length
 }
+
+@Test func bytesTryPeekSucceeds() throws {
+    let b = Bytes([0xDE, 0xAD, 0xBE, 0xEF])
+    #expect(try b.tryPeekUInt32(at: 0, endianness: .big) == 0xDEADBEEF)
+    #expect(try b.tryPeekUInt8(at: 1) == 0xAD)
+}
+
+@Test func bytesTryPeekThrowsOutOfBounds() {
+    let b = Bytes([0xDE, 0xAD])
+    #expect(throws: BytesError.outOfBounds(offset: 1, length: 4, bufferCount: 2)) {
+        _ = try b.tryPeekUInt32(at: 1, endianness: .big)
+    }
+    #expect(throws: BytesError.outOfBounds(offset: -1, length: 1, bufferCount: 2)) {
+        _ = try b.tryPeekUInt8(at: -1)
+    }
+}
+
+@Test func bytesTryPeekBytesThrowsInvalidLength() {
+    let b = Bytes([0xDE, 0xAD])
+    #expect(throws: BytesError.invalidLength(-1)) {
+        _ = try b.tryPeekBytes(at: 0, length: -1)
+    }
+}
+
+@Test func bytesTryPeekBytesThrowsOutOfBounds() {
+    let b = Bytes([0xDE, 0xAD])
+    #expect(throws: BytesError.outOfBounds(offset: 0, length: 5, bufferCount: 2)) {
+        _ = try b.tryPeekBytes(at: 0, length: 5)
+    }
+}

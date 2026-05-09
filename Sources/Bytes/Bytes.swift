@@ -164,3 +164,59 @@ extension Bytes {
                      length: length)
     }
 }
+
+extension Bytes {
+    public func tryPeekUInt8(at offset: Int) throws -> UInt8 {
+        guard let v = peekUInt8(at: offset) else {
+            throw BytesError.outOfBounds(offset: offset, length: 1, bufferCount: length)
+        }
+        return v
+    }
+
+    public func tryPeekInt8(at offset: Int) throws -> Int8 {
+        Int8(bitPattern: try tryPeekUInt8(at: offset))
+    }
+
+    public func tryPeekUInt16(at offset: Int, endianness: Endianness) throws -> UInt16 {
+        guard let v = peekUInt16(at: offset, endianness: endianness) else {
+            throw BytesError.outOfBounds(offset: offset, length: 2, bufferCount: length)
+        }
+        return v
+    }
+
+    public func tryPeekInt16(at offset: Int, endianness: Endianness) throws -> Int16 {
+        Int16(bitPattern: try tryPeekUInt16(at: offset, endianness: endianness))
+    }
+
+    public func tryPeekUInt32(at offset: Int, endianness: Endianness) throws -> UInt32 {
+        guard let v = peekUInt32(at: offset, endianness: endianness) else {
+            throw BytesError.outOfBounds(offset: offset, length: 4, bufferCount: length)
+        }
+        return v
+    }
+
+    public func tryPeekInt32(at offset: Int, endianness: Endianness) throws -> Int32 {
+        Int32(bitPattern: try tryPeekUInt32(at: offset, endianness: endianness))
+    }
+
+    public func tryPeekUInt64(at offset: Int, endianness: Endianness) throws -> UInt64 {
+        guard let v = peekUInt64(at: offset, endianness: endianness) else {
+            throw BytesError.outOfBounds(offset: offset, length: 8, bufferCount: length)
+        }
+        return v
+    }
+
+    public func tryPeekInt64(at offset: Int, endianness: Endianness) throws -> Int64 {
+        Int64(bitPattern: try tryPeekUInt64(at: offset, endianness: endianness))
+    }
+
+    public func tryPeekBytes(at offset: Int, length: Int) throws -> Bytes {
+        if length < 0 { throw BytesError.invalidLength(length) }
+        guard let v = peekBytes(at: offset, length: length) else {
+            throw BytesError.outOfBounds(offset: offset,
+                                         length: length,
+                                         bufferCount: self.length)
+        }
+        return v
+    }
+}
