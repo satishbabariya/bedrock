@@ -2,22 +2,29 @@
 public struct BytesMut {
     @usableFromInline var storage: BytesStorage
     @usableFromInline var _count: Int
+    /// Set by `snapshot()` to force a CoW on the next mutation, even if the
+    /// storage reference count appears unique at that point (the snapshot
+    /// may have already been released by ARC before the next write).
+    @usableFromInline var _needsCoW: Bool
 
     public init() {
         self.storage = .empty
         self._count = 0
+        self._needsCoW = false
     }
 
     public init(capacity: Int) {
         precondition(capacity >= 0, "BytesMut capacity must be non-negative")
         self.storage = capacity == 0 ? .empty : BytesStorage(capacity: capacity)
         self._count = 0
+        self._needsCoW = false
     }
 
     public init<S: Sequence>(_ bytes: S) where S.Element == UInt8 {
         let array = Array(bytes)
         self.storage = array.isEmpty ? .empty : BytesStorage(capacity: array.count)
         self._count = array.count
+        self._needsCoW = false
         if !array.isEmpty {
             array.withUnsafeBufferPointer { src in
                 storage.pointer.copyMemory(from: src.baseAddress!,
@@ -41,12 +48,13 @@ public struct BytesMut {
     }
 
     /// Ensures the storage can hold `_count + additional` bytes total, performing
-    /// CoW if shared. Internal helper used by all mutating ops.
+    /// CoW if shared or if a snapshot was taken since the last CoW. Internal
+    /// helper used by all mutating ops.
     @usableFromInline
     mutating func ensureCapacity(forAdditional additional: Int) {
         let required = _count + additional
         let unique = isKnownUniquelyReferenced(&storage)
-        if required <= storage.capacity && unique {
+        if required <= storage.capacity && unique && !_needsCoW {
             return
         }
         let newCapacity: Int
@@ -63,6 +71,7 @@ public struct BytesMut {
                 byteCount: _count)
         }
         storage = newStorage
+        _needsCoW = false
     }
 }
 
@@ -129,9 +138,12 @@ extension BytesMut {
     }
 
     /// Non-consuming snapshot. Returns a `Bytes` referencing the current
-    /// storage; subsequent mutations CoW into a new storage.
-    public func snapshot() -> Bytes {
-        Bytes(storage: storage, offset: 0, length: _count)
+    /// storage; subsequent mutations CoW into a new storage. Sets an internal
+    /// flag so that the next mutation always performs CoW, even if the snapshot
+    /// value is released by ARC before the mutation occurs.
+    public mutating func snapshot() -> Bytes {
+        _needsCoW = true
+        return Bytes(storage: storage, offset: 0, length: _count)
     }
 
     public mutating func withUnsafeMutableBytes<R>(
@@ -141,5 +153,17 @@ extension BytesMut {
         let buffer = UnsafeMutableRawBufferPointer(
             start: _count == 0 ? nil : storage.pointer, count: _count)
         return try body(buffer)
+    }
+}
+
+extension BytesMut {
+    /// Hands ownership of the current contents to a new `Bytes` and resets
+    /// this builder to an empty state backed by the empty singleton.
+    public mutating func freeze() -> Bytes {
+        let result = Bytes(storage: storage, offset: 0, length: _count)
+        storage = .empty
+        _count = 0
+        _needsCoW = false
+        return result
     }
 }
