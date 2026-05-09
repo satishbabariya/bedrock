@@ -75,3 +75,32 @@ import Testing
     #expect(r.readBytes(length: -1) == nil)
     #expect(r.consumed == 0)
 }
+
+@Test func readerTryReadSucceeds() throws {
+    var r = BytesReader(Bytes([0xDE, 0xAD, 0xBE, 0xEF]))
+    #expect(try r.tryReadUInt32(endianness: .big) == 0xDEADBEEF)
+    #expect(r.remaining == 0)
+}
+
+@Test func readerTryReadThrowsShortRead() {
+    var r = BytesReader(Bytes([0x01, 0x02]))
+    #expect(throws: BytesError.shortRead(needed: 4, available: 2)) {
+        _ = try r.tryReadUInt32(endianness: .big)
+    }
+    // cursor unchanged after failure
+    #expect(r.consumed == 0)
+}
+
+@Test func readerTryReadBytesThrowsInvalidLength() {
+    var r = BytesReader(Bytes([0x01, 0x02]))
+    #expect(throws: BytesError.invalidLength(-1)) {
+        _ = try r.tryReadBytes(length: -1)
+    }
+}
+
+@Test func readerTryReadBytesThrowsShortRead() {
+    var r = BytesReader(Bytes([0x01, 0x02]))
+    #expect(throws: BytesError.shortRead(needed: 5, available: 2)) {
+        _ = try r.tryReadBytes(length: 5)
+    }
+}

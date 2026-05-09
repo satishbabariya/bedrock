@@ -72,3 +72,57 @@ extension BytesReader {
         return slice
     }
 }
+
+extension BytesReader {
+    public mutating func tryReadUInt8() throws -> UInt8 {
+        guard let v = readUInt8() else {
+            throw BytesError.shortRead(needed: 1, available: remaining)
+        }
+        return v
+    }
+
+    public mutating func tryReadInt8() throws -> Int8 {
+        Int8(bitPattern: try tryReadUInt8())
+    }
+
+    public mutating func tryReadUInt16(endianness: Endianness) throws -> UInt16 {
+        guard let v = readUInt16(endianness: endianness) else {
+            throw BytesError.shortRead(needed: 2, available: remaining)
+        }
+        return v
+    }
+
+    public mutating func tryReadInt16(endianness: Endianness) throws -> Int16 {
+        Int16(bitPattern: try tryReadUInt16(endianness: endianness))
+    }
+
+    public mutating func tryReadUInt32(endianness: Endianness) throws -> UInt32 {
+        guard let v = readUInt32(endianness: endianness) else {
+            throw BytesError.shortRead(needed: 4, available: remaining)
+        }
+        return v
+    }
+
+    public mutating func tryReadInt32(endianness: Endianness) throws -> Int32 {
+        Int32(bitPattern: try tryReadUInt32(endianness: endianness))
+    }
+
+    public mutating func tryReadUInt64(endianness: Endianness) throws -> UInt64 {
+        guard let v = readUInt64(endianness: endianness) else {
+            throw BytesError.shortRead(needed: 8, available: remaining)
+        }
+        return v
+    }
+
+    public mutating func tryReadInt64(endianness: Endianness) throws -> Int64 {
+        Int64(bitPattern: try tryReadUInt64(endianness: endianness))
+    }
+
+    public mutating func tryReadBytes(length: Int) throws -> Bytes {
+        if length < 0 { throw BytesError.invalidLength(length) }
+        guard let v = readBytes(length: length) else {
+            throw BytesError.shortRead(needed: length, available: remaining)
+        }
+        return v
+    }
+}
