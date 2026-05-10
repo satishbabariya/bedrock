@@ -4,7 +4,7 @@ import Bytes
 ///
 /// Storage is 16 bytes in network (big-endian) byte order, exposed as
 /// `bytes`. Use `description` for canonical lowercase string form.
-public struct UUID: Sendable, Hashable {
+public struct UUID: Sendable, Hashable, Comparable {
     @usableFromInline let storage: SIMD16<UInt8>
 
     @usableFromInline
@@ -51,5 +51,17 @@ public struct UUID: Sendable, Hashable {
         arr.reserveCapacity(16)
         for i in 0..<16 { arr.append(storage[i]) }
         return Bytes(arr)
+    }
+}
+
+extension UUID {
+    /// Lexicographic byte-wise comparison. Sorts v7 UUIDs in timestamp order.
+    public static func < (lhs: UUID, rhs: UUID) -> Bool {
+        for i in 0..<16 {
+            if lhs.storage[i] != rhs.storage[i] {
+                return lhs.storage[i] < rhs.storage[i]
+            }
+        }
+        return false
     }
 }
