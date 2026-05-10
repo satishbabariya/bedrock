@@ -1,6 +1,7 @@
 import Testing
 @testable import Hex
 
-@Test func hexModuleLoads() {
-    #expect(_hexModuleLoaded == true)
+@Test func hexNamespaceExists() {
+    let _: Hex.Case = .lower
+    #expect(true)
 }
