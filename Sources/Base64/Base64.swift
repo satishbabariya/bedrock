@@ -209,10 +209,10 @@ extension Base64 {
         return out.freeze()
     }
 
-    /// Constant-time decoder. Implemented in Task 11.
+    /// Constant-time decoder. Branch-free byte classification; runtime is a
+    /// function of input length only.
     private static func decodeConstantTime(_ src: [UInt8]) throws -> Bytes {
-        // Stub for now; Task 11 fills this in.
-        throw Base64Error.constantTimeRejected
+        try base64DecodeConstantTime(src)
     }
 
     // MARK: - Encode (internal helper)
