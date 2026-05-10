@@ -1,6 +1,8 @@
 import Testing
 @testable import UUID
 
-@Test func uuidModuleLoads() {
-    #expect(_uuidModuleLoaded == true)
+@Test func uuidNamespaceExists() {
+    let _: UUID.Version = .v4
+    let _: UUID.Variant = .rfc4122
+    #expect(true)
 }
