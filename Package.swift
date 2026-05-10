@@ -7,6 +7,7 @@ let package = Package(
         .library(name: "Bytes", targets: ["Bytes"]),
         .library(name: "Hex", targets: ["Hex"]),
         .library(name: "Base64", targets: ["Base64"]),
+        .library(name: "UUID", targets: ["UUID"]),
     ],
     targets: [
         .target(name: "Bytes", path: "Sources/Bytes"),
@@ -17,5 +18,8 @@ let package = Package(
 
         .target(name: "Base64", dependencies: ["Bytes"], path: "Sources/Base64"),
         .testTarget(name: "Base64Tests", dependencies: ["Base64", "Bytes"], path: "Tests/Base64Tests"),
+
+        .target(name: "UUID", dependencies: ["Bytes"], path: "Sources/UUID"),
+        .testTarget(name: "UUIDTests", dependencies: ["UUID", "Bytes"], path: "Tests/UUIDTests"),
     ]
 )
