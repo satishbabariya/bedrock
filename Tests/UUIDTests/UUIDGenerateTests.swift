@@ -95,3 +95,52 @@ struct DeterministicRNG: RandomNumberGenerator {
     #expect(b < c)
     #expect(a < c)
 }
+
+@Test func v8HasVersion8AndRfc4122Variant() throws {
+    let raw = [UInt8](repeating: 0xAA, count: 16)
+    let u = try UUID.v8(bytes: Bytes(raw))
+    #expect(u.version == .v8)
+    #expect(u.variant == .rfc4122)
+}
+
+@Test func v8PreservesCallerBytesExceptVersionAndVariant() throws {
+    let raw = [UInt8](repeating: 0xAA, count: 16)
+    let u = try UUID.v8(bytes: Bytes(raw))
+    let out = Array(u.bytes)
+    // Bytes 0-5, 7, 9-15 unchanged.
+    for i in [0, 1, 2, 3, 4, 5, 7, 9, 10, 11, 12, 13, 14, 15] {
+        #expect(out[i] == 0xAA, "byte \(i) should be 0xAA, got \(out[i])")
+    }
+    // Byte 6: low nibble preserved (0xA), high nibble = 8.
+    #expect(out[6] == 0x8A)
+    // Byte 8: low 6 bits preserved (0b101010 = 0x2A), top two bits = 0b10.
+    #expect(out[8] == 0xAA)  // 0b10101010 — high two bits already were 10
+}
+
+@Test func v8VersionStampOverwritesHighNibbleOfByte6() throws {
+    var raw = [UInt8](repeating: 0, count: 16)
+    raw[6] = 0xFF  // expect high nibble to become 8, low nibble to stay F
+    let u = try UUID.v8(bytes: Bytes(raw))
+    let out = Array(u.bytes)
+    #expect(out[6] == 0x8F)
+}
+
+@Test func v8VariantStampOverwritesTopTwoBitsOfByte8() throws {
+    var raw = [UInt8](repeating: 0, count: 16)
+    raw[8] = 0xFF  // expect top two bits to become 10, low 6 bits stay 1
+    let u = try UUID.v8(bytes: Bytes(raw))
+    let out = Array(u.bytes)
+    // 0xFF & 0x3F = 0x3F; 0x3F | 0x80 = 0xBF
+    #expect(out[8] == 0xBF)
+}
+
+@Test func v8WrongLengthThrows() {
+    let short = Bytes([UInt8](repeating: 0, count: 15))
+    #expect(throws: UUIDError.invalidByteCount(15)) {
+        _ = try UUID.v8(bytes: short)
+    }
+    let long = Bytes([UInt8](repeating: 0, count: 17))
+    #expect(throws: UUIDError.invalidByteCount(17)) {
+        _ = try UUID.v8(bytes: long)
+    }
+}

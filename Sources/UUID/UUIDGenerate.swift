@@ -62,3 +62,23 @@ extension UUID {
         return UUID(storage: s)
     }
 }
+
+extension UUID {
+
+    /// Custom v8 UUID. The provided 16 bytes are stored verbatim except
+    /// for the version field (byte 6 high nibble = 8) and variant field
+    /// (byte 8 high two bits = 10) per RFC 9562 §5.8 — the application
+    /// owns the remaining 122 bits.
+    public static func v8(bytes: Bytes) throws -> UUID {
+        guard bytes.count == 16 else {
+            throw UUIDError.invalidByteCount(bytes.count)
+        }
+        var s = SIMD16<UInt8>()
+        bytes.withUnsafeBytes { src in
+            for i in 0..<16 { s[i] = src[i] }
+        }
+        s[6] = (s[6] & 0x0F) | 0x80    // version 8 = 1000xxxx
+        s[8] = (s[8] & 0x3F) | 0x80    // variant 10x
+        return UUID(storage: s)
+    }
+}
