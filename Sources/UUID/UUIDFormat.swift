@@ -4,7 +4,7 @@ extension UUID: CustomStringConvertible, LosslessStringConvertible {
     public var description: String { formatted(.canonicalLower) }
 
     /// Lossless init: accepts canonical lowercase only — for round-trip
-    /// from `description`. Use `init(_:)` for permissive parsing.
+    /// from `description`. Use `init(parsing:)` for permissive parsing.
     public init?(_ description: String) {
         guard description.utf8.count == 36 else { return nil }
         let utf8 = Array(description.utf8)
