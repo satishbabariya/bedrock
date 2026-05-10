@@ -1,7 +1,33 @@
-extension UUID: CustomStringConvertible {
+extension UUID: CustomStringConvertible, LosslessStringConvertible {
 
     /// Canonical lowercase: `xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`.
     public var description: String { formatted(.canonicalLower) }
+
+    /// Lossless init: accepts canonical lowercase only — for round-trip
+    /// from `description`. Use `init(_:)` for permissive parsing.
+    public init?(_ description: String) {
+        guard description.utf8.count == 36 else { return nil }
+        let utf8 = Array(description.utf8)
+        // Reject uppercase hex so description.init?(_:) round-trips.
+        for b in utf8 where (0x41...0x46).contains(b) { return nil }
+        // Validate hyphens at the four canonical positions.
+        guard utf8[8] == 0x2D && utf8[13] == 0x2D
+           && utf8[18] == 0x2D && utf8[23] == 0x2D
+        else { return nil }
+        var s = SIMD16<UInt8>()
+        var byteIdx = 0
+        var i = 0
+        while i < 36 {
+            if utf8[i] == 0x2D { i += 1; continue }
+            let hi = Self.decodeNibble(utf8[i])
+            let lo = Self.decodeNibble(utf8[i + 1])
+            if hi == 0xFF || lo == 0xFF { return nil }
+            s[byteIdx] = (hi << 4) | lo
+            byteIdx += 1
+            i += 2
+        }
+        self.init(storage: s)
+    }
 
     /// Output format options.
     public enum Format: Sendable {

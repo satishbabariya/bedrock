@@ -3,7 +3,7 @@ extension UUID {
     /// Permissive parse: accepts canonical, braces, urn:uuid: prefix,
     /// and 32-char hyphenless. Hex case-insensitive. Throws on any
     /// other shape.
-    public init(_ string: String) throws {
+    public init(parsing string: String) throws {
         var s = string
 
         // Strip URN prefix (case-insensitive).

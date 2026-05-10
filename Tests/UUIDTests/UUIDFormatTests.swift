@@ -52,26 +52,20 @@ import Bytes
     #expect(s.hasPrefix("urn:uuid:"))
 }
 
-@Test func losslessInitAcceptsCanonicalLowercase() throws {
+@Test func losslessInitAcceptsCanonicalLowercase() {
     let s = "550e8400-e29b-41d4-a716-446655440000"
-    let u = try UUID(s)
-    #expect(u.description == s)
+    let u = UUID(s)
+    #expect(u != nil)
+    #expect(u?.description == s)
 }
 
-@Test func losslessInitRejectsUppercase() throws {
-    // Permissive parser accepts uppercase — only strict canonical is rejected
-    // by the old lossless init. The throwing init accepts mixed case.
+@Test func losslessInitRejectsUppercase() {
     let s = "550E8400-E29B-41D4-A716-446655440000"
-    let u = try UUID(s)
-    #expect(u.description == "550e8400-e29b-41d4-a716-446655440000")
+    #expect(UUID(s) == nil)
 }
 
-@Test func losslessInitRejectsBracesAndURN() throws {
-    // Permissive parser now accepts braces, URN, and hyphenless.
-    let braced = try UUID("{550e8400-e29b-41d4-a716-446655440000}")
-    #expect(braced.description == "550e8400-e29b-41d4-a716-446655440000")
-    let urn = try UUID("urn:uuid:550e8400-e29b-41d4-a716-446655440000")
-    #expect(urn.description == "550e8400-e29b-41d4-a716-446655440000")
-    let hyphenless = try UUID("550e8400e29b41d4a716446655440000")
-    #expect(hyphenless.description == "550e8400-e29b-41d4-a716-446655440000")
+@Test func losslessInitRejectsBracesAndURN() {
+    #expect(UUID("{550e8400-e29b-41d4-a716-446655440000}") == nil)
+    #expect(UUID("urn:uuid:550e8400-e29b-41d4-a716-446655440000") == nil)
+    #expect(UUID("550e8400e29b41d4a716446655440000") == nil)
 }
