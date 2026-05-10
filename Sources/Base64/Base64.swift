@@ -68,6 +68,155 @@ extension Base64 {
         out.putBytes(arr)
     }
 
+    // MARK: - Decode
+
+    /// Decode a Base64 string. Auto-detects variant; mixing throws.
+    /// Padding is optional on input regardless of the encoder's choice.
+    public static func decode(
+        _ s: String,
+        mode: DecodeMode = .strict
+    ) throws -> Bytes {
+        var arr: [UInt8] = []
+        arr.reserveCapacity(s.utf8.count)
+        arr.append(contentsOf: s.utf8)
+        return try decodeBytes(arr, mode: mode)
+    }
+
+    /// Decode Base64 bytes (ASCII). Same semantics as the String overload.
+    public static func decode(
+        _ bytes: Bytes,
+        mode: DecodeMode = .strict
+    ) throws -> Bytes {
+        var arr: [UInt8] = []
+        arr.reserveCapacity(bytes.count)
+        bytes.withUnsafeBytes { src in
+            arr.append(contentsOf: src)
+        }
+        return try decodeBytes(arr, mode: mode)
+    }
+
+    /// Stream-decode into a `BytesMut`. Returns the number of decoded bytes.
+    @discardableResult
+    public static func decode(
+        _ s: String,
+        into out: inout BytesMut,
+        mode: DecodeMode = .strict
+    ) throws -> Int {
+        let decoded = try decode(s, mode: mode)
+        out.putBytes(decoded)
+        return decoded.count
+    }
+
+    private static func decodeBytes(_ src: [UInt8], mode: DecodeMode) throws -> Bytes {
+        if case .constantTime = mode {
+            return try decodeConstantTime(src)
+        }
+        return try decodeVariableTime(src, mode: mode)
+    }
+
+    /// Variable-time decoder shared by `.strict` and `.lenient`.
+    /// Tracks the variant once the first `+/-_` appears; mixing throws.
+    private static func decodeVariableTime(_ src: [UInt8], mode: DecodeMode) throws -> Bytes {
+        var out = BytesMut(capacity: (src.count / 4) * 3)
+        var quantum: UInt32 = 0
+        var sextetsInQuantum = 0
+        var paddingsSeen = 0
+        var seenStandardChar = false
+        var seenUrlSafeChar = false
+
+        for offset in 0..<src.count {
+            let b = src[offset]
+            let v = base64DecodeTable[Int(b)]
+
+            // Handle whitespace
+            if v == base64Whitespace {
+                if mode == .lenient { continue }
+                throw Base64Error.invalidCharacter(offset: offset, byte: b)
+            }
+
+            // Lock variant when seeing alphabet-distinguishing chars.
+            switch b {
+            case 0x2B, 0x2F:
+                if seenUrlSafeChar {
+                    throw Base64Error.invalidCharacter(offset: offset, byte: b)
+                }
+                seenStandardChar = true
+            case 0x2D, 0x5F:
+                if seenStandardChar {
+                    throw Base64Error.invalidCharacter(offset: offset, byte: b)
+                }
+                seenUrlSafeChar = true
+            default:
+                break
+            }
+
+            // Handle padding
+            if v == base64PadSentinel {
+                if sextetsInQuantum < 2 {
+                    throw Base64Error.invalidPadding(offset: offset)
+                }
+                paddingsSeen += 1
+                if paddingsSeen > 2 {
+                    throw Base64Error.invalidPadding(offset: offset)
+                }
+                continue
+            }
+
+            if v == base64Invalid {
+                throw Base64Error.invalidCharacter(offset: offset, byte: b)
+            }
+
+            // Padding mid-stream → invalid
+            if paddingsSeen > 0 {
+                throw Base64Error.invalidCharacter(offset: offset, byte: b)
+            }
+
+            // Append sextet
+            quantum = (quantum << 6) | UInt32(v)
+            sextetsInQuantum += 1
+
+            if sextetsInQuantum == 4 {
+                out.putUInt8(UInt8((quantum >> 16) & 0xFF))
+                out.putUInt8(UInt8((quantum >>  8) & 0xFF))
+                out.putUInt8(UInt8(quantum & 0xFF))
+                quantum = 0
+                sextetsInQuantum = 0
+                paddingsSeen = 0
+            }
+        }
+
+        // Tail handling: if we ended mid-quantum, padding was either implied
+        // (unpadded input) or already accounted for.
+        switch sextetsInQuantum {
+        case 0:
+            break
+        case 1:
+            // Single sextet at the end is never valid (no whole bytes).
+            throw Base64Error.invalidLength(src.count)
+        case 2:
+            // Two sextets → 1 output byte.
+            quantum <<= 12
+            out.putUInt8(UInt8((quantum >> 16) & 0xFF))
+        case 3:
+            // Three sextets → 2 output bytes.
+            quantum <<= 6
+            out.putUInt8(UInt8((quantum >> 16) & 0xFF))
+            out.putUInt8(UInt8((quantum >>  8) & 0xFF))
+        default:
+            break
+        }
+
+        return out.freeze()
+    }
+
+    /// Constant-time decoder. Implemented in Task 11.
+    private static func decodeConstantTime(_ src: [UInt8]) throws -> Bytes {
+        // Stub for now; Task 11 fills this in.
+        throw Base64Error.constantTimeRejected
+    }
+
+    // MARK: - Encode (internal helper)
+
     /// Internal helper. Writes the encoded bytes into `out`.
     private static func encodeIntoArray(
         _ bytes: Bytes,
