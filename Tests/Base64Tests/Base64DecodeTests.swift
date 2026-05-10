@@ -94,3 +94,34 @@ private let rfcVectors: [(String, String)] = [
         _ = try Base64.decode("Z!9v", mode: .lenient)
     }
 }
+
+@Test func base64DecodeTableMatchesGroundTruth() {
+    func expected(for byte: UInt8) -> UInt8 {
+        switch byte {
+        case 0x41...0x5A: return byte - 0x41           // A-Z -> 0...25
+        case 0x61...0x7A: return byte - 0x61 + 26      // a-z -> 26...51
+        case 0x30...0x39: return byte - 0x30 + 52      // 0-9 -> 52...61
+        case 0x2B:        return 62                    // '+'
+        case 0x2F:        return 63                    // '/'
+        case 0x2D:        return 62                    // '-' (url-safe)
+        case 0x5F:        return 63                    // '_' (url-safe)
+        case 0x3D:        return 0xFD                  // '=' padding sentinel
+        case 0x09, 0x0A, 0x0D, 0x20: return 0xFE       // whitespace sentinel
+        default:          return 0xFF                  // invalid
+        }
+    }
+    for i in 0..<256 {
+        let b = UInt8(i)
+        #expect(base64DecodeTable[i] == expected(for: b),
+                "table mismatch at byte 0x\(String(b, radix: 16))")
+    }
+}
+
+@Test func decodeAlphanumericOnlyDoesNotLockVariant() throws {
+    // "Zm9v" is alphanumeric -- no +/-_ to trigger variant lock-in.
+    // Should succeed under both default (.strict) and .lenient.
+    let viaStrict = try Base64.decode("Zm9v", mode: .strict)
+    let viaLenient = try Base64.decode("Zm9v", mode: .lenient)
+    #expect(Array(viaStrict) == Array("foo".utf8))
+    #expect(Array(viaLenient) == Array("foo".utf8))
+}

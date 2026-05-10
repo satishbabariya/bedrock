@@ -55,3 +55,28 @@ import Bytes
         }
     }
 }
+
+@Test func roundTripLenientAndConstantTimeModes() throws {
+    // Use a small but representative payload across all valid lengths.
+    for length in 0...32 {
+        let arr = (0..<length).map { UInt8($0 & 0xFF) }
+        let original = Bytes(arr)
+
+        // Encode with both variants x padding settings, then decode under
+        // .lenient and .constantTime. Both should yield identity round-trips
+        // when input is well-formed (no whitespace).
+        for variant in [Base64.Variant.standard, .urlSafe] {
+            for padding in [true, false] {
+                let encoded = Base64.encode(original, variant: variant, padding: padding)
+
+                let viaLenient = try Base64.decode(encoded, mode: .lenient)
+                #expect(original == viaLenient,
+                        "lenient round-trip failed: length=\(length) variant=\(variant) padding=\(padding)")
+
+                let viaConstantTime = try Base64.decode(encoded, mode: .constantTime)
+                #expect(original == viaConstantTime,
+                        "constantTime round-trip failed: length=\(length) variant=\(variant) padding=\(padding)")
+            }
+        }
+    }
+}
