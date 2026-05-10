@@ -78,3 +78,19 @@ private let rfcVectors: [(String, String)] = [
     let frozen = out.freeze()
     #expect(Array(frozen) == [0xAA, 0x66, 0x6F, 0x6F])
 }
+
+@Test func decodeLenientSkipsWhitespace() throws {
+    let result = try Base64.decode("Zm9v\nYmFy", mode: .lenient)
+    #expect(Array(result) == Array("foobar".utf8))
+}
+
+@Test func decodeLenientAcceptsSpacesAndTabs() throws {
+    let result = try Base64.decode("Zm 9v\tYmFy", mode: .lenient)
+    #expect(Array(result) == Array("foobar".utf8))
+}
+
+@Test func decodeLenientRejectsNonWhitespaceInvalid() {
+    #expect(throws: Base64Error.invalidCharacter(offset: 1, byte: 0x21)) {
+        _ = try Base64.decode("Z!9v", mode: .lenient)
+    }
+}
