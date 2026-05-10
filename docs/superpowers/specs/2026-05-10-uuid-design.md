@@ -176,9 +176,11 @@ extension UUID {
     /// Permissive parse: accepts canonical, braces, urn:uuid: prefix,
     /// and 32-char hyphenless. Hex case-insensitive. Throws on any
     /// other shape.
-    public init(_ string: String) throws
+    public init(parsing string: String) throws
 }
 ```
+
+> **Note:** Originally specified as `init(_ string: String) throws`, but Swift treats that as a redeclaration of the failable `init?(_:)` from `LosslessStringConvertible`. Renamed to `init(parsing:)` so both inits coexist. Call sites: `try UUID(parsing: "...")` for the throwing form; `UUID("...")` for the failable canonical-only form.
 
 ### 3.5 Generate
 
@@ -392,7 +394,7 @@ public static func v8(bytes: Bytes) throws -> UUID {
 Strip wrappers, then dispatch to the canonical or hyphenless inner parser:
 
 ```swift
-public init(_ string: String) throws {
+public init(parsing string: String) throws {
     var s = string
 
     // Strip URN prefix (case-insensitive).

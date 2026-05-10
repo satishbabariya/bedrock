@@ -11,8 +11,9 @@
 > - `Sources/Bytes/` — core bytes ([design](../docs/superpowers/specs/2026-05-09-bytes-design.md), [plan](../docs/superpowers/plans/2026-05-09-bytes-module.md))
 > - `Sources/Hex/` — hex codec ([design](../docs/superpowers/specs/2026-05-10-hex-base64-design.md), [plan](../docs/superpowers/plans/2026-05-10-hex-base64-modules.md))
 > - `Sources/Base64/` — base64 codec, including constant-time decode ([same design + plan](../docs/superpowers/specs/2026-05-10-hex-base64-design.md))
+> - `Sources/UUID/` — UUID type with v4/v7/v8 generation; v1/v3/v5/v6 parse/inspect work, generation deferred to follow-up patches when Layer 8 (MAC) and Layer 12 (MD5/SHA-1) ship ([design](../docs/superpowers/specs/2026-05-10-uuid-design.md), [plan](../docs/superpowers/plans/2026-05-10-uuid-module.md))
 >
-> Remaining categories (varints, UUID, BitSet, percent encoding, SIMD UTF-8, COBS, URL/IDNA) pending their own designs.
+> Remaining categories (varints, BitSet, percent encoding, SIMD UTF-8, COBS, URL/IDNA) pending their own designs.
 
 The absolute foundation. Without these, no I/O, no protocols, nothing.
 
