@@ -53,3 +53,58 @@ import Bytes
     Varint.encode(UInt64(150), into: &buf)
     #expect(Array(buf.freeze()) == [0xAA, 0x96, 0x01])
 }
+
+@Test func decodeUInt64KnownVectors() throws {
+    var r = BytesReader(Bytes([0x00, 0x01, 0x7F, 0x80, 0x01, 0x96, 0x01]))
+    #expect(try Varint.decodeUInt64(from: &r) == 0)
+    #expect(try Varint.decodeUInt64(from: &r) == 1)
+    #expect(try Varint.decodeUInt64(from: &r) == 127)
+    #expect(try Varint.decodeUInt64(from: &r) == 128)
+    #expect(try Varint.decodeUInt64(from: &r) == 150)
+    #expect(r.isExhausted == true)
+}
+
+@Test func decodeUInt32KnownVectors() throws {
+    var r = BytesReader(Bytes([0xFF, 0xFF, 0xFF, 0xFF, 0x0F]))
+    #expect(try Varint.decodeUInt32(from: &r) == UInt32.max)
+    #expect(r.isExhausted == true)
+}
+
+@Test func decodeUInt64MaxValue() throws {
+    var r = BytesReader(Bytes([0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x01]))
+    #expect(try Varint.decodeUInt64(from: &r) == UInt64.max)
+    #expect(r.isExhausted == true)
+}
+
+@Test func roundTripUInt64Powers() throws {
+    let values: [UInt64] = [
+        0, 1, 127, 128, 16383, 16384,
+        UInt64(1) << 32, UInt64(UInt32.max), UInt64.max - 1, UInt64.max,
+    ]
+    for v in values {
+        var buf = BytesMut()
+        Varint.encode(v, into: &buf)
+        var r = BytesReader(buf.freeze())
+        let decoded = try Varint.decodeUInt64(from: &r)
+        #expect(decoded == v, "round-trip failed for \(v)")
+    }
+}
+
+@Test func roundTripUInt32Boundaries() throws {
+    let values: [UInt32] = [0, 1, 127, 128, 16383, 16384, UInt32.max - 1, UInt32.max]
+    for v in values {
+        var buf = BytesMut()
+        Varint.encode(v, into: &buf)
+        var r = BytesReader(buf.freeze())
+        let decoded = try Varint.decodeUInt32(from: &r)
+        #expect(decoded == v, "round-trip failed for \(v)")
+    }
+}
+
+@Test func encodeReturnCountMatchesDecodeConsumed() throws {
+    var buf = BytesMut()
+    let written = Varint.encode(UInt64(0x1_2345_6789), into: &buf)
+    var r = BytesReader(buf.freeze())
+    _ = try Varint.decodeUInt64(from: &r)
+    #expect(r.consumed == written)
+}
