@@ -108,3 +108,33 @@ import Bytes
     _ = try Varint.decodeUInt64(from: &r)
     #expect(r.consumed == written)
 }
+
+@Test func encodedUInt64ReturnsBytes() {
+    #expect(Array(Varint.encoded(UInt64(0))) == [0x00])
+    #expect(Array(Varint.encoded(UInt64(150))) == [0x96, 0x01])
+    #expect(Array(Varint.encoded(UInt64.max)).count == 10)
+}
+
+@Test func encodedUInt32ReturnsBytes() {
+    #expect(Array(Varint.encoded(UInt32(150))) == [0x96, 0x01])
+    #expect(Array(Varint.encoded(UInt32.max)).count == 5)
+}
+
+@Test func decodeUInt64FromBytesReturnsValueAndConsumed() throws {
+    // Encode three values back-to-back, then decode the first one.
+    var buf = BytesMut()
+    Varint.encode(UInt64(150), into: &buf)
+    Varint.encode(UInt64(99), into: &buf)
+    Varint.encode(UInt64(7), into: &buf)
+    let frozen = buf.freeze()
+    let (v, consumed) = try Varint.decodeUInt64(from: frozen)
+    #expect(v == 150)
+    #expect(consumed == 2)
+}
+
+@Test func decodeUInt32FromBytesReturnsValueAndConsumed() throws {
+    let bytes = Varint.encoded(UInt32(16384))  // 3 bytes
+    let (v, consumed) = try Varint.decodeUInt32(from: bytes)
+    #expect(v == 16384)
+    #expect(consumed == 3)
+}

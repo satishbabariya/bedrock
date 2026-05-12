@@ -72,3 +72,34 @@ extension Varint {
         throw VarintError.overflow
     }
 }
+
+extension Varint {
+
+    /// One-shot encode: returns the varint bytes as a fresh `Bytes` value.
+    public static func encoded(_ value: UInt64) -> Bytes {
+        var b = BytesMut(capacity: maxBytes64)
+        encode(value, into: &b)
+        return b.freeze()
+    }
+
+    /// One-shot encode for UInt32. Result is 1–5 bytes.
+    public static func encoded(_ value: UInt32) -> Bytes {
+        var b = BytesMut(capacity: maxBytes32)
+        encode(value, into: &b)
+        return b.freeze()
+    }
+
+    /// One-shot decode: returns the value and the number of bytes consumed.
+    public static func decodeUInt64(from bytes: Bytes) throws -> (value: UInt64, consumed: Int) {
+        var r = BytesReader(bytes)
+        let v = try decodeUInt64(from: &r)
+        return (v, r.consumed)
+    }
+
+    /// One-shot decode for UInt32.
+    public static func decodeUInt32(from bytes: Bytes) throws -> (value: UInt32, consumed: Int) {
+        var r = BytesReader(bytes)
+        let v = try decodeUInt32(from: &r)
+        return (v, r.consumed)
+    }
+}
