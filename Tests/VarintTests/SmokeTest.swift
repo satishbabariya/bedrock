@@ -1,6 +1,6 @@
 import Testing
 @testable import Varint
 
-@Test func varintModuleLoads() {
-    #expect(_varintModuleLoaded == true)
+@Test func varintNamespaceExists() {
+    #expect(Varint.maxBytes32 == 5)
 }
