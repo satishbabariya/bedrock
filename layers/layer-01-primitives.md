@@ -14,8 +14,9 @@
 > - `Sources/UUID/` — UUID type with v4/v7/v8 generation; v1/v3/v5/v6 parse/inspect work, generation deferred to follow-up patches when Layer 8 (MAC) and Layer 12 (MD5/SHA-1) ship ([design](../docs/superpowers/specs/2026-05-10-uuid-design.md), [plan](../docs/superpowers/plans/2026-05-10-uuid-module.md))
 > - `Sources/Varint/` — LEB128 unsigned + ZigZag-LEB128 signed for UInt32/UInt64/Int32/Int64 ([design](../docs/superpowers/specs/2026-05-12-varint-design.md), [plan](../docs/superpowers/plans/2026-05-12-varint-module.md))
 > - `Sources/PercentEncoding/` — RFC 3986 + x-www-form-urlencoded byte codec with per-component named sets ([design](../docs/superpowers/specs/2026-05-16-percent-encoding-design.md), [plan](../docs/superpowers/plans/2026-05-16-percent-encoding-module.md))
+> - `Sources/BitSet/` — growable bit-array with SetAlgebra conformance and Bytes interop ([design](../docs/superpowers/specs/2026-05-16-bitset-design.md), [plan](../docs/superpowers/plans/2026-05-16-bitset-module.md))
 >
-> Remaining categories (BitSet, SIMD UTF-8, COBS, URL/IDNA) pending their own designs.
+> Remaining categories (SIMD UTF-8, COBS, URL/IDNA) pending their own designs.
 
 The absolute foundation. Without these, no I/O, no protocols, nothing.
 
