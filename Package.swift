@@ -10,6 +10,7 @@ let package = Package(
         .library(name: "UUID", targets: ["UUID"]),
         .library(name: "Varint", targets: ["Varint"]),
         .library(name: "PercentEncoding", targets: ["PercentEncoding"]),
+        .library(name: "BitSet", targets: ["BitSet"]),
     ],
     targets: [
         .target(name: "Bytes", path: "Sources/Bytes"),
@@ -29,5 +30,8 @@ let package = Package(
 
         .target(name: "PercentEncoding", dependencies: ["Bytes"], path: "Sources/PercentEncoding"),
         .testTarget(name: "PercentEncodingTests", dependencies: ["PercentEncoding", "Bytes"], path: "Tests/PercentEncodingTests"),
+
+        .target(name: "BitSet", dependencies: ["Bytes"], path: "Sources/BitSet"),
+        .testTarget(name: "BitSetTests", dependencies: ["BitSet", "Bytes"], path: "Tests/BitSetTests"),
     ]
 )
