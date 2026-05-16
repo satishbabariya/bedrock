@@ -1,6 +1,7 @@
 import Testing
 @testable import PercentEncoding
 
-@Test func percentEncodingModuleLoads() {
-    #expect(_percentEncodingModuleLoaded == true)
+@Test func percentEncodingNamespaceExists() {
+    let _: PercentEncoding.Set = .unreserved
+    #expect(true)
 }
