@@ -15,3 +15,33 @@ import Testing
     ]
     #expect(cases.count == 7)
 }
+
+@Test func decodeBareEscapeThrows() {
+    #expect(throws: PercentEncodingError.malformedEscape(offset: 0)) {
+        _ = try PercentEncoding.decode("%")
+    }
+}
+
+@Test func decodeNonHexHighNibbleThrows() {
+    #expect(throws: PercentEncodingError.malformedEscape(offset: 0)) {
+        _ = try PercentEncoding.decode("%G0")
+    }
+}
+
+@Test func decodeNonHexLowNibbleThrows() {
+    #expect(throws: PercentEncodingError.malformedEscape(offset: 0)) {
+        _ = try PercentEncoding.decode("%2G")
+    }
+}
+
+@Test func decodeTruncatedEscapeAtEndThrows() {
+    #expect(throws: PercentEncodingError.malformedEscape(offset: 3)) {
+        _ = try PercentEncoding.decode("abc%")
+    }
+}
+
+@Test func decodeOneHexDigitThenEOFThrows() {
+    #expect(throws: PercentEncodingError.malformedEscape(offset: 3)) {
+        _ = try PercentEncoding.decode("abc%2")
+    }
+}
