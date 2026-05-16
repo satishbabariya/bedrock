@@ -1,6 +1,7 @@
 import Testing
 @testable import BitSet
 
-@Test func bitSetModuleLoads() {
-    #expect(_bitSetModuleLoaded == true)
+@Test func bitSetNamespaceExists() {
+    let _ = BitSet()
+    #expect(true)
 }
