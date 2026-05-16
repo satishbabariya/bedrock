@@ -102,3 +102,61 @@ import Testing
     let d = small.subtracting(big)
     #expect(d.isEmpty)
 }
+
+@Test func compoundAssignmentOperatorsMatchNamedForms() {
+    let a: BitSet = [1, 3, 5]
+    let b: BitSet = [3, 5, 7]
+
+    // |=
+    var x = a; x |= b
+    var y = a; y.formUnion(b)
+    #expect(x == y)
+
+    // &=
+    x = a; x &= b
+    y = a; y.formIntersection(b)
+    #expect(x == y)
+
+    // -=
+    x = a; x -= b
+    y = a; y.subtract(b)
+    #expect(x == y)
+
+    // ^=
+    x = a; x ^= b
+    y = a; y.formSymmetricDifference(b)
+    #expect(x == y)
+}
+
+@Test func formUnionShorterReceiverGrows() {
+    // Receiver storage is shorter than other; grow path must run.
+    var small: BitSet = [1]                       // 1 word
+    let big = BitSet((0..<200).map { $0 })        // 4 words
+    small.formUnion(big)
+    #expect(small.count == big.count)
+    for bit in 0..<200 { #expect(small.contains(bit)) }
+}
+
+@Test func formSymmetricDifferenceShorterReceiverGrows() {
+    var small: BitSet = [1]
+    let big = BitSet((0..<200).map { $0 })
+    small.formSymmetricDifference(big)
+    // 1 was in both → cleared. Bits 0, 2..199 remain.
+    #expect(small.contains(1) == false)
+    #expect(small.contains(0))
+    #expect(small.contains(199))
+    #expect(small.count == 199)
+}
+
+@Test func formIntersectionLongerReceiverTruncates() {
+    // Receiver storage spans multiple words; other is short.
+    var big = BitSet((0..<200).map { $0 })        // 4 words
+    let small: BitSet = [1, 100, 199]
+    big.formIntersection(small)
+    // After intersection, only 1, 100, 199 remain.
+    #expect(big.count == 3)
+    #expect(big.contains(1))
+    #expect(big.contains(100))
+    #expect(big.contains(199))
+    #expect(big.contains(0) == false)
+}
