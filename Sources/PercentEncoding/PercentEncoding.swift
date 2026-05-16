@@ -11,7 +11,9 @@ public enum PercentEncoding {
         case pathSegment
         /// Query: unreserved + sub-delims (minus `&` and `=`) + `:@/?`.
         case query
-        /// Fragment: same as query plus `?`.
+        /// Fragment: unreserved + all sub-delims + `:` `@` `/` `?`.
+        /// Differs from `.query` by re-including `&` and `=` (sub-delims
+        /// have no special meaning inside a fragment).
         case fragment
         /// Userinfo (`user:pass`): unreserved + sub-delims + `:`.
         case userinfo

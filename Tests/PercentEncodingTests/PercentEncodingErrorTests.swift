@@ -45,3 +45,10 @@ import Testing
         _ = try PercentEncoding.decode("abc%2")
     }
 }
+
+@Test func decodeFormBareEscapeThrows() {
+    // Verify decodeForm shares the error path with decode.
+    #expect(throws: PercentEncodingError.malformedEscape(offset: 0)) {
+        _ = try PercentEncoding.decodeForm("%")
+    }
+}
