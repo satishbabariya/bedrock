@@ -54,3 +54,38 @@ public struct BitSet: Sendable, Hashable {
         return true
     }
 }
+
+extension BitSet {
+
+    /// Index of the highest word containing any set bits, or -1 if all zero.
+    @usableFromInline
+    internal func lastNonZeroWordIndex() -> Int {
+        var i = storage.count - 1
+        while i >= 0 {
+            if storage[i] != 0 { return i }
+            i -= 1
+        }
+        return -1
+    }
+
+    /// Canonical equality: ignores trailing zero words.
+    public static func == (lhs: BitSet, rhs: BitSet) -> Bool {
+        let lLast = lhs.lastNonZeroWordIndex()
+        let rLast = rhs.lastNonZeroWordIndex()
+        if lLast != rLast { return false }
+        if lLast < 0 { return true }   // both empty
+        for i in 0...lLast {
+            if lhs.storage[i] != rhs.storage[i] { return false }
+        }
+        return true
+    }
+
+    /// Canonical hash: only words up through the last non-zero index contribute.
+    public func hash(into hasher: inout Hasher) {
+        let last = lastNonZeroWordIndex()
+        if last < 0 { return }   // empty: contribute nothing
+        for i in 0...last {
+            hasher.combine(storage[i])
+        }
+    }
+}
