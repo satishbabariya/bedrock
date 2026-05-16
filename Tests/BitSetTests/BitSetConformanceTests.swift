@@ -48,3 +48,13 @@ import Testing
     }
     #expect(result == 3)
 }
+
+@Test func descriptionFormat() {
+    let s: BitSet = [3, 1, 7]
+    #expect(s.description == "BitSet{1, 3, 7}")
+}
+
+@Test func descriptionEmpty() {
+    let s = BitSet()
+    #expect(s.description == "BitSet{}")
+}
