@@ -11,6 +11,7 @@ let package = Package(
         .library(name: "Varint", targets: ["Varint"]),
         .library(name: "PercentEncoding", targets: ["PercentEncoding"]),
         .library(name: "BitSet", targets: ["BitSet"]),
+        .library(name: "COBS", targets: ["COBS"]),
     ],
     targets: [
         .target(name: "Bytes", path: "Sources/Bytes"),
@@ -33,5 +34,8 @@ let package = Package(
 
         .target(name: "BitSet", dependencies: ["Bytes"], path: "Sources/BitSet"),
         .testTarget(name: "BitSetTests", dependencies: ["BitSet", "Bytes"], path: "Tests/BitSetTests"),
+
+        .target(name: "COBS", dependencies: ["Bytes"], path: "Sources/COBS"),
+        .testTarget(name: "COBSTests", dependencies: ["COBS", "Bytes"], path: "Tests/COBSTests"),
     ]
 )
