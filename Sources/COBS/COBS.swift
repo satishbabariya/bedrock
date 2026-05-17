@@ -16,7 +16,7 @@ public enum COBS {
     /// Worst-case encoded body size: `n + ⌈n/254⌉ + 1` (add 1 if framed).
     public static func maxEncodedSize(forSourceCount n: Int,
                                       framing: Framing = .none) -> Int {
-        precondition(n >= 0, "source count must be non-negative")
+        precondition(n >= 0)
         let overhead = (n + 253) / 254  // ⌈n/254⌉, safe for n>=0
         let body = n + overhead + 1
         return framing == .terminator ? body + 1 : body
@@ -26,7 +26,7 @@ public enum COBS {
     /// (`max(0, n - 2)` if framed). Actual decoded size ≤ this.
     public static func maxDecodedSize(forEncodedCount n: Int,
                                       framing: Framing = .none) -> Int {
-        precondition(n >= 0, "encoded count must be non-negative")
+        precondition(n >= 0)
         let strip = framing == .terminator ? 2 : 1
         return Swift.max(0, n - strip)
     }
