@@ -11,4 +11,16 @@ public enum UTF8Validator {
         /// malformed sequence began (WHATWG convention).
         case invalid(offset: Int)
     }
+
+    /// Fast yes/no validation. Equivalent to `validate(_:) == .valid`
+    /// but allowed to skip offset bookkeeping.
+    public static func isValid(_ bytes: Bytes) -> Bool {
+        UTF8ValidatorDFA.isValid(bytes)
+    }
+
+    /// Validate `bytes` as strict UTF-8 per RFC 3629. Rejects overlongs,
+    /// surrogates (U+D800–U+DFFF), and code points > U+10FFFF.
+    public static func validate(_ bytes: Bytes) -> ValidationResult {
+        UTF8ValidatorDFA.validate(bytes)
+    }
 }
