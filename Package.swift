@@ -14,6 +14,8 @@ let package = Package(
         .library(name: "COBS", targets: ["COBS"]),
         .library(name: "UTF8Validator", targets: ["UTF8Validator"]),
         .library(name: "TaggedPointer", targets: ["TaggedPointer"]),
+        .library(name: "UnicodeProperties", targets: ["UnicodeProperties"]),
+        .executable(name: "bedrock-ucd-gen", targets: ["bedrock-ucd-gen"]),
     ],
     targets: [
         .target(name: "Bytes", path: "Sources/Bytes"),
@@ -45,5 +47,20 @@ let package = Package(
 
         .target(name: "TaggedPointer", path: "Sources/TaggedPointer"),
         .testTarget(name: "TaggedPointerTests", dependencies: ["TaggedPointer"], path: "Tests/TaggedPointerTests"),
+
+        .target(name: "UnicodeProperties",
+                path: "Sources/UnicodeProperties",
+                exclude: ["UCD"]),
+        .testTarget(name: "UnicodePropertiesTests",
+                    dependencies: ["UnicodeProperties"],
+                    path: "Tests/UnicodePropertiesTests"),
+
+        .target(name: "BedrockUcdGen", path: "Sources/BedrockUcdGen"),
+        .executableTarget(name: "bedrock-ucd-gen",
+                          dependencies: ["BedrockUcdGen"],
+                          path: "Sources/bedrock-ucd-gen"),
+        .testTarget(name: "BedrockUcdGenTests",
+                    dependencies: ["BedrockUcdGen"],
+                    path: "Tests/BedrockUcdGenTests"),
     ]
 )
