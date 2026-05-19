@@ -13,6 +13,7 @@ let package = Package(
         .library(name: "BitSet", targets: ["BitSet"]),
         .library(name: "COBS", targets: ["COBS"]),
         .library(name: "UTF8Validator", targets: ["UTF8Validator"]),
+        .library(name: "TaggedPointer", targets: ["TaggedPointer"]),
     ],
     targets: [
         .target(name: "Bytes", path: "Sources/Bytes"),
@@ -41,5 +42,8 @@ let package = Package(
 
         .target(name: "UTF8Validator", dependencies: ["Bytes"], path: "Sources/UTF8Validator"),
         .testTarget(name: "UTF8ValidatorTests", dependencies: ["UTF8Validator", "Bytes"], path: "Tests/UTF8ValidatorTests"),
+
+        .target(name: "TaggedPointer", path: "Sources/TaggedPointer"),
+        .testTarget(name: "TaggedPointerTests", dependencies: ["TaggedPointer"], path: "Tests/TaggedPointerTests"),
     ]
 )
