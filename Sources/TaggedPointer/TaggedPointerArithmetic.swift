@@ -15,4 +15,21 @@ extension TaggedPointer {
     /// Maximum representable tag value (same as `tagMask`).
     @inlinable
     public static var maxTag: UInt { tagMask }
+
+    /// Derive a new tagged pointer with a different tag, same pointer.
+    /// Traps if `newTag > maxTag`.
+    @inlinable
+    public func withTag(_ newTag: UInt) -> TaggedPointer<Pointee> {
+        precondition(newTag <= Self.maxTag,
+                     "tag exceeds maxTag for this Pointee alignment")
+        let pointerBits = raw & ~Self.tagMask
+        return TaggedPointer(rawStorage: pointerBits | newTag)
+    }
+
+    /// Derive a new tagged pointer with a different pointer, same tag.
+    /// Traps if the new pointer's low `tagBits` are nonzero.
+    @inlinable
+    public func withPointer(_ newPointer: UnsafeMutablePointer<Pointee>?) -> TaggedPointer<Pointee> {
+        TaggedPointer(pointer: newPointer, tag: tag)
+    }
 }
