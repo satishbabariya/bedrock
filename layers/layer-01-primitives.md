@@ -17,6 +17,7 @@
 > - `Sources/BitSet/` — growable bit-array with SetAlgebra conformance and Bytes interop ([design](../docs/superpowers/specs/2026-05-16-bitset-design.md), [plan](../docs/superpowers/plans/2026-05-16-bitset-module.md))
 > - `Sources/COBS/` — Consistent Overhead Byte Stuffing codec with body-only and auto-terminator framing ([design](../docs/superpowers/specs/2026-05-17-cobs-design.md), [plan](../docs/superpowers/plans/2026-05-17-cobs-module.md))
 > - `Sources/UTF8Validator/` — strict UTF-8 byte-sequence validator (RFC 3629) with first-invalid-byte offset reporting; scalar Hoehrmann DFA, SIMD fast path deferred ([design](../docs/superpowers/specs/2026-05-18-utf8-validator-design.md), [plan](../docs/superpowers/plans/2026-05-18-utf8-validator-module.md))
+> - `Sources/TaggedPointer/` — generic value type packing a small tag into the unused low alignment bits of `UnsafeMutablePointer<Pointee>`; atomic variant deferred to Layer 10 ([design](../docs/superpowers/specs/2026-05-19-tagged-pointer-design.md), [plan](../docs/superpowers/plans/2026-05-19-tagged-pointer-module.md))
 >
 > Remaining categories (URL/IDNA) pending their own designs.
 
