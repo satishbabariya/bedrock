@@ -23,7 +23,7 @@ This is the entry point for everything table-heavy in Layer 2. Subsequent sub-pr
 - **Two-stage trie primitive** (`TwoStageTrie<Value: FixedWidthInteger>`) — generic over the value type, reused by future property tables.
 - **Vendored data**: `UnicodeData.txt` (~1.8 MB) checked into the repo at `Sources/UnicodeProperties/UCD/UnicodeData.txt` so codegen is reproducible without network.
 - **Pre-generated tables checked in**: `swift build` works without running codegen.
-- **Compressed-range handling** for `<X, First>`/`<X, Last>` pairs (CJK Ideograph, Hangul Syllable, Tangut, plane 15/16 PUA, etc.).
+- **Compressed-range handling** for the 19 `<X, First>`/`<X, Last>` pairs in Unicode 16.0 (CJK Ideograph + Extensions A–I, Hangul Syllable, Tangut + Supplement, three surrogate ranges, BMP/Plane-15/Plane-16 PUAs).
 - **Codegen-time correctness check**: after building the trie, verify every codepoint's `trie.lookup(cp)` matches the uncompacted source. Fail loudly before emitting.
 
 ### Out of scope (subsequent Layer 2 sub-projects)
@@ -191,7 +191,7 @@ Each line is `;`-separated with 15 fields. We care about field 0 (codepoint hex)
 9FFF;<CJK Ideograph, Last>;Lo;...
 ```
 
-Parser detects names ending in `, First>` and consumes the next line (ending in `, Last>`) to recover the inclusive range. Unicode 16.0 has 7 such pairs.
+Parser detects names ending in `, First>` and consumes the next line (ending in `, Last>`) to recover the inclusive range. Unicode 16.0 has 19 such pairs: CJK Ideograph + Extensions A–I, Hangul Syllable, Tangut Ideograph + Supplement, the three surrogate ranges (High/High-PUA/Low), and the BMP/Plane-15/Plane-16 Private Use Areas.
 
 **Absent codepoints** default to `.unassigned` (`Cn`).
 
