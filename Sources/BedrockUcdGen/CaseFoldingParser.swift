@@ -78,6 +78,27 @@ public enum CaseFoldingParser {
     }
 }
 
+public extension Array where Element == CaseFoldingEntry {
+    /// Expand to a 0x110000-element uncompacted [UInt32] containing the
+    /// simple case-folded target codepoint (0 = identity).
+    ///
+    /// Honors statuses C and S only (single-codepoint mappings).
+    /// If both exist for the same codepoint, S takes priority
+    /// (Unicode-documented). F and T entries are skipped.
+    func expandSimpleCaseFolding() -> [UInt32] {
+        var out = [UInt32](repeating: 0, count: 0x110000)
+        for entry in self
+            where entry.status == .common && entry.mapping.count == 1 {
+            out[Int(entry.codepoint)] = entry.mapping[0]
+        }
+        for entry in self
+            where entry.status == .simple && entry.mapping.count == 1 {
+            out[Int(entry.codepoint)] = entry.mapping[0]
+        }
+        return out
+    }
+}
+
 private extension String {
     func cfTrimmed() -> String {
         var startIdx = self.startIndex
