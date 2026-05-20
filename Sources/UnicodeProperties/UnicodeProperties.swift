@@ -11,6 +11,14 @@ public enum UnicodeProperties {
         return GeneralCategory(rawValue: raw) ?? .unassigned
     }
 
+    /// O(1) bidi-class lookup. Defaults to `.leftToRight` for codepoints
+    /// not present in UnicodeData.txt.
+    @inlinable
+    public static func bidiClass(of scalar: Unicode.Scalar) -> BidiClass {
+        let raw = bidiClassTable.lookup(scalar.value)
+        return BidiClass(rawValue: raw) ?? .leftToRight
+    }
+
     /// Any L* category (uppercase, lowercase, titlecase, modifier, other).
     @inlinable
     public static func isLetter(_ scalar: Unicode.Scalar) -> Bool {
