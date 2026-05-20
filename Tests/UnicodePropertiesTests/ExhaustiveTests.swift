@@ -18,6 +18,7 @@ struct ExhaustiveTests {
             _ = UnicodeProperties.simpleUppercase(of: scalar)
             _ = UnicodeProperties.simpleLowercase(of: scalar)
             _ = UnicodeProperties.simpleTitlecase(of: scalar)
+            _ = UnicodeProperties.caseFolded(of: scalar)
         }
     }
 }
