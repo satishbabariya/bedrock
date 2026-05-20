@@ -4,17 +4,26 @@ public struct UCDEntry: Equatable, Sendable {
     public let category: String
     public let canonicalCombiningClass: UInt8
     public let bidiClass: String
+    public let simpleUppercase: UInt32
+    public let simpleLowercase: UInt32
+    public let simpleTitlecase: UInt32
 
     public init(first: UInt32,
                 last: UInt32,
                 category: String,
                 canonicalCombiningClass: UInt8 = 0,
-                bidiClass: String = "L") {
+                bidiClass: String = "L",
+                simpleUppercase: UInt32 = 0,
+                simpleLowercase: UInt32 = 0,
+                simpleTitlecase: UInt32 = 0) {
         self.first = first
         self.last = last
         self.category = category
         self.canonicalCombiningClass = canonicalCombiningClass
         self.bidiClass = bidiClass
+        self.simpleUppercase = simpleUppercase
+        self.simpleLowercase = simpleLowercase
+        self.simpleTitlecase = simpleTitlecase
     }
 }
 
@@ -54,6 +63,9 @@ public enum UCDParser {
                                                       raw: String(fields[3]))
             }
             let bidi = String(fields[4])
+            let upper = fields[12].isEmpty ? 0 : (UInt32(fields[12], radix: 16) ?? 0)
+            let lower = fields[13].isEmpty ? 0 : (UInt32(fields[13], radix: 16) ?? 0)
+            let title = fields[14].isEmpty ? 0 : (UInt32(fields[14], radix: 16) ?? 0)
 
             if name.hasSuffix(", First>") {
                 guard i + 1 < lines.count else {
@@ -74,14 +86,20 @@ public enum UCDParser {
                                          last: lastCodepoint,
                                          category: category,
                                          canonicalCombiningClass: ccc,
-                                         bidiClass: bidi))
+                                         bidiClass: bidi,
+                                         simpleUppercase: upper,
+                                         simpleLowercase: lower,
+                                         simpleTitlecase: title))
                 i += 2
             } else {
                 entries.append(UCDEntry(first: codepoint,
                                          last: codepoint,
                                          category: category,
                                          canonicalCombiningClass: ccc,
-                                         bidiClass: bidi))
+                                         bidiClass: bidi,
+                                         simpleUppercase: upper,
+                                         simpleLowercase: lower,
+                                         simpleTitlecase: title))
                 i += 1
             }
         }

@@ -14,6 +14,9 @@ struct UCDParserTests {
         #expect(entries[0].category == "Lu")
         #expect(entries[0].canonicalCombiningClass == 0)
         #expect(entries[0].bidiClass == "L")
+        #expect(entries[0].simpleUppercase == 0)
+        #expect(entries[0].simpleLowercase == 0x0061)
+        #expect(entries[0].simpleTitlecase == 0)
     }
 
     @Test
@@ -118,5 +121,17 @@ struct UCDParserTests {
         } catch {
             // expected
         }
+    }
+
+    @Test
+    func parsesTitlecaseLetter() throws {
+        // U+01C5 LATIN CAPITAL LETTER D WITH SMALL LETTER Z WITH CARON (titlecase)
+        // UCD line has upper=01C4, lower=01C6, title=01C5
+        let input = "01C5;LATIN CAPITAL LETTER D WITH SMALL LETTER Z WITH CARON;Lt;0;L;<compat> 0044 017E;;;;N;LATIN LETTER CAPITAL D SMALL Z HACEK;;01C4;01C6;01C5\n"
+        let entries = try UCDParser.parse(input)
+        #expect(entries.count == 1)
+        #expect(entries[0].simpleUppercase == 0x01C4)
+        #expect(entries[0].simpleLowercase == 0x01C6)
+        #expect(entries[0].simpleTitlecase == 0x01C5)
     }
 }
