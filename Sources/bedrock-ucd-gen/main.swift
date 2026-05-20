@@ -63,7 +63,10 @@ for (outputPath, globalName, label, expand) in outputs {
     }
     print("Self-check OK: 1114112 codepoints round-trip.")
 
-    let src = CodeEmitter.emit(trie, unicodeVersion: unicodeVersion, globalName: globalName)
+    let src = CodeEmitter.emit(trie,
+                                unicodeVersion: unicodeVersion,
+                                globalName: globalName,
+                                valueTypeName: "UInt8")
     do {
         try src.write(toFile: outputPath, atomically: true, encoding: .utf8)
         print("Wrote \(outputPath) (\(src.utf8.count) bytes).")
