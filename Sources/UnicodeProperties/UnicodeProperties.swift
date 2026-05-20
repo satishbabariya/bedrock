@@ -52,6 +52,23 @@ public enum UnicodeProperties {
         return raw == 0 ? scalar : (Unicode.Scalar(raw) ?? scalar)
     }
 
+    /// Simple case folding (CaseFolding.txt statuses C + S — single-
+    /// codepoint folding only). Returns the input scalar unchanged when
+    /// no folding applies.
+    ///
+    /// For case-insensitive comparison, folding is the correct operation
+    /// (not lowercasing). Folding maps disparate cased forms (e.g., Greek
+    /// "Σ" and "ς") to a single canonical form ("σ") for comparison.
+    ///
+    /// Multi-codepoint folding (e.g., "ß" → "ss") requires status `F`;
+    /// that's a separate sub-project. Turkic-locale folding (status `T`)
+    /// is locale-dependent and also deferred.
+    @inlinable
+    public static func caseFolded(of scalar: Unicode.Scalar) -> Unicode.Scalar {
+        let raw = simpleCaseFoldingTable.lookup(scalar.value)
+        return raw == 0 ? scalar : (Unicode.Scalar(raw) ?? scalar)
+    }
+
     /// Any L* category (uppercase, lowercase, titlecase, modifier, other).
     @inlinable
     public static func isLetter(_ scalar: Unicode.Scalar) -> Bool {
