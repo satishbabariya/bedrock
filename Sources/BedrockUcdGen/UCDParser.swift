@@ -222,6 +222,42 @@ public extension Array where Element == UCDEntry {
         }
         return out
     }
+
+    /// Expand to a 0x110000-element uncompacted array of simple-uppercase
+    /// target codepoints. 0 means identity (no mapping).
+    func expandSimpleUppercase() -> [UInt32] {
+        var out = [UInt32](repeating: 0, count: 0x110000)
+        for entry in self where entry.simpleUppercase != 0 {
+            for cp in entry.first...entry.last {
+                out[Int(cp)] = entry.simpleUppercase
+            }
+        }
+        return out
+    }
+
+    /// Expand to a 0x110000-element uncompacted array of simple-lowercase
+    /// target codepoints. 0 means identity (no mapping).
+    func expandSimpleLowercase() -> [UInt32] {
+        var out = [UInt32](repeating: 0, count: 0x110000)
+        for entry in self where entry.simpleLowercase != 0 {
+            for cp in entry.first...entry.last {
+                out[Int(cp)] = entry.simpleLowercase
+            }
+        }
+        return out
+    }
+
+    /// Expand to a 0x110000-element uncompacted array of simple-titlecase
+    /// target codepoints. 0 means identity (no mapping).
+    func expandSimpleTitlecase() -> [UInt32] {
+        var out = [UInt32](repeating: 0, count: 0x110000)
+        for entry in self where entry.simpleTitlecase != 0 {
+            for cp in entry.first...entry.last {
+                out[Int(cp)] = entry.simpleTitlecase
+            }
+        }
+        return out
+    }
 }
 
 private extension Substring {
