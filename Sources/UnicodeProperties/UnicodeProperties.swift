@@ -26,6 +26,32 @@ public enum UnicodeProperties {
         canonicalCombiningClassTable.lookup(scalar.value)
     }
 
+    /// Simple uppercase mapping (UnicodeData.txt field 12).
+    /// Returns the input scalar unchanged when no mapping exists.
+    ///
+    /// "Simple" = single-codepoint mapping only. Multi-codepoint cases
+    /// (e.g., "ß" → "SS") and locale-dependent cases (Turkish dotted/
+    /// dotless I) require SpecialCasing.txt; that's a separate sub-project.
+    @inlinable
+    public static func simpleUppercase(of scalar: Unicode.Scalar) -> Unicode.Scalar {
+        let raw = simpleUppercaseTable.lookup(scalar.value)
+        return raw == 0 ? scalar : (Unicode.Scalar(raw) ?? scalar)
+    }
+
+    /// Simple lowercase mapping (UnicodeData.txt field 13).
+    @inlinable
+    public static func simpleLowercase(of scalar: Unicode.Scalar) -> Unicode.Scalar {
+        let raw = simpleLowercaseTable.lookup(scalar.value)
+        return raw == 0 ? scalar : (Unicode.Scalar(raw) ?? scalar)
+    }
+
+    /// Simple titlecase mapping (UnicodeData.txt field 14).
+    @inlinable
+    public static func simpleTitlecase(of scalar: Unicode.Scalar) -> Unicode.Scalar {
+        let raw = simpleTitlecaseTable.lookup(scalar.value)
+        return raw == 0 ? scalar : (Unicode.Scalar(raw) ?? scalar)
+    }
+
     /// Any L* category (uppercase, lowercase, titlecase, modifier, other).
     @inlinable
     public static func isLetter(_ scalar: Unicode.Scalar) -> Bool {
