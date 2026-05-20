@@ -11,6 +11,10 @@ struct ExhaustiveTests {
             let c = UnicodeProperties.generalCategory(of: scalar)
             #expect(c.rawValue <= 29,
                     "out-of-range raw value at U+\(String(cp, radix: 16))")
+            let b = UnicodeProperties.bidiClass(of: scalar)
+            #expect(b.rawValue <= 22,
+                    "out-of-range bidi-class raw value at U+\(String(cp, radix: 16))")
+            _ = UnicodeProperties.canonicalCombiningClass(of: scalar)
         }
     }
 }

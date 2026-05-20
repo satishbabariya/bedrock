@@ -10,9 +10,9 @@
 Swift's `String` is Unicode-correct, but its underlying tables come from the OS's ICU. Without Foundation/ICU, you must ship the tables yourself.
 
 > **Status:** shipping modules:
-> - `Sources/UnicodeProperties/` — UCD-derived general-category lookup with O(1) two-stage trie; codegen tool `bedrock-ucd-gen` ([design](../docs/superpowers/specs/2026-05-19-unicode-properties-design.md), [plan](../docs/superpowers/plans/2026-05-19-unicode-properties-module.md)). Unicode 16.0.0.
+> - `Sources/UnicodeProperties/` — UCD-derived lookup against a two-stage trie. Properties available: general category (UAX #44), bidi class (UAX #9), canonical combining class. Codegen tool `bedrock-ucd-gen` emits one table per property ([2.1 design](../docs/superpowers/specs/2026-05-19-unicode-properties-design.md) · [2.1 plan](../docs/superpowers/plans/2026-05-19-unicode-properties-module.md) · [2.2 design](../docs/superpowers/specs/2026-05-20-bidi-class-and-ccc-design.md) · [2.2 plan](../docs/superpowers/plans/2026-05-20-bidi-class-and-ccc-module.md)). Unicode 16.0.0.
 >
-> Subsequent sub-projects (Layer 2.2–2.8): extended properties, normalization (NFC/NFD/NFKC/NFKD), segmentation (UAX #29), case mapping, identifier classification (UAX #31), bidi (UAX #9), ASCII helpers.
+> Subsequent sub-projects (Layer 2.3–2.8): normalization (NFC/NFD/NFKC/NFKD), segmentation (UAX #29), case mapping, identifier classification (UAX #31), bidi algorithm (UAX #9), ASCII helpers.
 
 ## Libraries
 
