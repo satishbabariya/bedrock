@@ -123,3 +123,25 @@ for (outputPath, globalName, label, expand) in uint32Outputs {
     let uncompacted = expand(entries)
     emitUInt32(outputPath, globalName, label, uncompacted)
 }
+
+print("---")
+print("Processing: simple case folding (CaseFolding.txt)")
+let cfPath = "Sources/UnicodeProperties/UCD/CaseFolding.txt"
+let cfText: String
+do {
+    cfText = try String(contentsOfFile: cfPath, encoding: .utf8)
+} catch {
+    print("Failed to read \(cfPath): \(error)")
+    exit(1)
+}
+let cfEntries: [CaseFoldingEntry]
+do {
+    cfEntries = try CaseFoldingParser.parse(cfText)
+    print("Parsed \(cfEntries.count) folding entries.")
+} catch {
+    print("CaseFolding parse error: \(error)")
+    exit(1)
+}
+let cfUncompacted = cfEntries.expandSimpleCaseFolding()
+emitUInt32("Sources/UnicodeProperties/Generated/SimpleCaseFoldingTable.swift",
+            "simpleCaseFoldingTable", "simple case folding", cfUncompacted)
