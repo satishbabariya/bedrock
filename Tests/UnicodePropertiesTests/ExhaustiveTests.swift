@@ -15,6 +15,9 @@ struct ExhaustiveTests {
             #expect(b.rawValue <= 22,
                     "out-of-range bidi-class raw value at U+\(String(cp, radix: 16))")
             _ = UnicodeProperties.canonicalCombiningClass(of: scalar)
+            _ = UnicodeProperties.simpleUppercase(of: scalar)
+            _ = UnicodeProperties.simpleLowercase(of: scalar)
+            _ = UnicodeProperties.simpleTitlecase(of: scalar)
         }
     }
 }
