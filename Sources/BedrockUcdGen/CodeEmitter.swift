@@ -1,6 +1,6 @@
 public enum CodeEmitter {
 
-    public static func emit(_ trie: BuiltTrie,
+    public static func emit(_ trie: BuiltTrie<UInt8>,
                             unicodeVersion: String,
                             globalName: String) -> String {
         var out = ""

@@ -6,7 +6,7 @@ struct CodeEmitterTests {
 
     @Test
     func headerContainsExpectedTokens() {
-        let trie = BuiltTrie(
+        let trie = BuiltTrie<UInt8>(
             stage1: [0, 0, 0, 0],
             stage2: [1, 2, 3]
         )
@@ -20,7 +20,7 @@ struct CodeEmitterTests {
 
     @Test
     func includesStage1AndStage2Arrays() {
-        let trie = BuiltTrie(
+        let trie = BuiltTrie<UInt8>(
             stage1: [0, 0],
             stage2: [42]
         )
@@ -43,7 +43,7 @@ struct CodeEmitterTests {
 
     @Test
     func usesProvidedGlobalName() {
-        let trie = BuiltTrie(
+        let trie = BuiltTrie<UInt8>(
             stage1: [0, 0],
             stage2: [1]
         )

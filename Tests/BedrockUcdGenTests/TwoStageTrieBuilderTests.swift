@@ -48,4 +48,16 @@ struct TwoStageTrieBuilderTests {
         #expect(result.stage1[0] == result.stage1[2])
         #expect(result.stage1[5] != result.stage1[0])
     }
+
+    @Test
+    func builderHandlesUInt32() {
+        var uncompacted = [UInt32](repeating: 0, count: 0x110000)
+        uncompacted[0x0041] = 0x0061
+        uncompacted[0x0061] = 0x0041
+        let result = TwoStageTrieBuilder.build(uncompacted)
+        #expect(result.lookup(0x0041) == 0x0061)
+        #expect(result.lookup(0x0061) == 0x0041)
+        #expect(result.lookup(0x0042) == 0)
+        #expect(result.lookup(0x10FFFF) == 0)
+    }
 }
