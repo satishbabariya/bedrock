@@ -19,6 +19,13 @@ public enum UnicodeProperties {
         return BidiClass(rawValue: raw) ?? .leftToRight
     }
 
+    /// O(1) canonical-combining-class lookup. Returns 0 for codepoints
+    /// with no combining class (the default per UCD).
+    @inlinable
+    public static func canonicalCombiningClass(of scalar: Unicode.Scalar) -> UInt8 {
+        canonicalCombiningClassTable.lookup(scalar.value)
+    }
+
     /// Any L* category (uppercase, lowercase, titlecase, modifier, other).
     @inlinable
     public static func isLetter(_ scalar: Unicode.Scalar) -> Bool {
