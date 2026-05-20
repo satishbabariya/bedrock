@@ -12,6 +12,8 @@ struct UCDParserTests {
         #expect(entries[0].first == 0x0041)
         #expect(entries[0].last == 0x0041)
         #expect(entries[0].category == "Lu")
+        #expect(entries[0].canonicalCombiningClass == 0)
+        #expect(entries[0].bidiClass == "L")
     }
 
     @Test
@@ -26,6 +28,8 @@ struct UCDParserTests {
         #expect(entries[0].first == 0x0041)
         #expect(entries[1].first == 0x0042)
         #expect(entries[2].category == "Ll")
+        #expect(entries[0].canonicalCombiningClass == 0)
+        #expect(entries[0].bidiClass == "L")
     }
 
     @Test
@@ -39,6 +43,8 @@ struct UCDParserTests {
         #expect(entries[0].first == 0x4E00)
         #expect(entries[0].last == 0x9FFF)
         #expect(entries[0].category == "Lo")
+        #expect(entries[0].canonicalCombiningClass == 0)
+        #expect(entries[0].bidiClass == "L")
     }
 
     @Test
@@ -88,6 +94,27 @@ struct UCDParserTests {
         do {
             _ = try UCDParser.parse(input)
             Issue.record("expected parse error on unmatched First")
+        } catch {
+            // expected
+        }
+    }
+
+    @Test
+    func parsesNonZeroCCCAndNonLBidi() throws {
+        // U+0300 COMBINING GRAVE ACCENT: CCC=230, bidi=NSM
+        let input = "0300;COMBINING GRAVE ACCENT;Mn;230;NSM;;;;;N;;;;;\n"
+        let entries = try UCDParser.parse(input)
+        #expect(entries.count == 1)
+        #expect(entries[0].canonicalCombiningClass == 230)
+        #expect(entries[0].bidiClass == "NSM")
+    }
+
+    @Test
+    func rejectsNonNumericCCC() {
+        let input = "0041;LATIN CAPITAL LETTER A;Lu;notanumber;L;;;;;N;;;;0061;\n"
+        do {
+            _ = try UCDParser.parse(input)
+            Issue.record("expected parse error on non-numeric CCC")
         } catch {
             // expected
         }

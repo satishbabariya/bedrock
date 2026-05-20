@@ -2,11 +2,19 @@ public struct UCDEntry: Equatable, Sendable {
     public let first: UInt32
     public let last: UInt32
     public let category: String
+    public let canonicalCombiningClass: UInt8
+    public let bidiClass: String
 
-    public init(first: UInt32, last: UInt32, category: String) {
+    public init(first: UInt32,
+                last: UInt32,
+                category: String,
+                canonicalCombiningClass: UInt8 = 0,
+                bidiClass: String = "L") {
         self.first = first
         self.last = last
         self.category = category
+        self.canonicalCombiningClass = canonicalCombiningClass
+        self.bidiClass = bidiClass
     }
 }
 
@@ -41,6 +49,11 @@ public enum UCDParser {
             }
             let name = String(fields[1])
             let category = String(fields[2])
+            guard let ccc = UInt8(fields[3]) else {
+                throw UCDParseError.invalidCodepoint(lineNumber: lineNumber,
+                                                      raw: String(fields[3]))
+            }
+            let bidi = String(fields[4])
 
             if name.hasSuffix(", First>") {
                 guard i + 1 < lines.count else {
@@ -59,12 +72,16 @@ public enum UCDParser {
                 }
                 entries.append(UCDEntry(first: codepoint,
                                          last: lastCodepoint,
-                                         category: category))
+                                         category: category,
+                                         canonicalCombiningClass: ccc,
+                                         bidiClass: bidi))
                 i += 2
             } else {
                 entries.append(UCDEntry(first: codepoint,
                                          last: codepoint,
-                                         category: category))
+                                         category: category,
+                                         canonicalCombiningClass: ccc,
+                                         bidiClass: bidi))
                 i += 1
             }
         }
