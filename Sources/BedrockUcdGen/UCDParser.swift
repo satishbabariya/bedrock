@@ -129,14 +129,75 @@ public enum GeneralCategoryCode {
     }
 }
 
+public enum BidiClassCode {
+    /// Map UCD bidi-class abbreviation to the UnicodeProperties.BidiClass raw value.
+    public static func rawValue(for abbreviation: String) throws -> UInt8 {
+        switch abbreviation {
+        case "L":   return 0
+        case "R":   return 1
+        case "AL":  return 2
+        case "EN":  return 3
+        case "ES":  return 4
+        case "ET":  return 5
+        case "AN":  return 6
+        case "CS":  return 7
+        case "NSM": return 8
+        case "BN":  return 9
+        case "B":   return 10
+        case "S":   return 11
+        case "WS":  return 12
+        case "ON":  return 13
+        case "LRE": return 14
+        case "LRO": return 15
+        case "RLE": return 16
+        case "RLO": return 17
+        case "PDF": return 18
+        case "LRI": return 19
+        case "RLI": return 20
+        case "FSI": return 21
+        case "PDI": return 22
+        default:
+            throw UCDParseError.invalidCodepoint(lineNumber: -1, raw: abbreviation)
+        }
+    }
+}
+
 public extension Array where Element == UCDEntry {
     /// Expand a list of UCDEntries into a 0x110000-element uncompacted
     /// array of general-category raw values. Codepoints absent from
     /// the input default to .unassigned (raw 29).
-    func expandToUncompacted() throws -> [UInt8] {
+    func expandGeneralCategory() throws -> [UInt8] {
         var out = [UInt8](repeating: 29, count: 0x110000)
         for entry in self {
             let value = try GeneralCategoryCode.rawValue(for: entry.category)
+            for cp in entry.first...entry.last {
+                out[Int(cp)] = value
+            }
+        }
+        return out
+    }
+
+    /// Expand to a 0x110000-element uncompacted array of bidi-class raw
+    /// values. Codepoints absent from the input default to L (raw 0).
+    func expandBidiClass() throws -> [UInt8] {
+        var out = [UInt8](repeating: 0, count: 0x110000)
+        for entry in self {
+            let value = try BidiClassCode.rawValue(for: entry.bidiClass)
+            for cp in entry.first...entry.last {
+                out[Int(cp)] = value
+            }
+        }
+        return out
+    }
+
+    /// Expand to a 0x110000-element uncompacted array of canonical
+    /// combining class values. Codepoints absent from the input
+    /// default to 0 (Not Reordered).
+    func expandCanonicalCombiningClass() -> [UInt8] {
+        var out = [UInt8](repeating: 0, count: 0x110000)
+        for entry in self {
+            let value = entry.canonicalCombiningClass
+            if value == 0 { continue }
             for cp in entry.first...entry.last {
                 out[Int(cp)] = value
             }

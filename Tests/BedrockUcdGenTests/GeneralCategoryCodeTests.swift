@@ -39,7 +39,7 @@ struct ExpandToUncompactedTests {
     @Test
     func emptyEntriesYieldsAllUnassigned() throws {
         let entries: [UCDEntry] = []
-        let out = try entries.expandToUncompacted()
+        let out = try entries.expandGeneralCategory()
         #expect(out.count == 0x110000)
         #expect(out.allSatisfy { $0 == 29 })
     }
@@ -49,7 +49,7 @@ struct ExpandToUncompactedTests {
         let entries: [UCDEntry] = [
             UCDEntry(first: 0x0041, last: 0x0041, category: "Lu"),
         ]
-        let out = try entries.expandToUncompacted()
+        let out = try entries.expandGeneralCategory()
         #expect(out[0x0041] == 0)
         #expect(out[0x0040] == 29)
         #expect(out[0x0042] == 29)
@@ -60,7 +60,7 @@ struct ExpandToUncompactedTests {
         let entries: [UCDEntry] = [
             UCDEntry(first: 0x4E00, last: 0x9FFF, category: "Lo"),
         ]
-        let out = try entries.expandToUncompacted()
+        let out = try entries.expandGeneralCategory()
         #expect(out[0x4E00] == 4)
         #expect(out[0x6F22] == 4)
         #expect(out[0x9FFF] == 4)
@@ -74,7 +74,7 @@ struct ExpandToUncompactedTests {
             UCDEntry(first: 0x0041, last: 0x0041, category: "Xx"),
         ]
         do {
-            _ = try entries.expandToUncompacted()
+            _ = try entries.expandGeneralCategory()
             Issue.record("expected throw for unknown category")
         } catch {
             // expected

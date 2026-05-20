@@ -25,7 +25,7 @@ do {
 
 let uncompacted: [UInt8]
 do {
-    uncompacted = try entries.expandToUncompacted()
+    uncompacted = try entries.expandGeneralCategory()
 } catch {
     print("Expansion error: \(error)")
     exit(1)
