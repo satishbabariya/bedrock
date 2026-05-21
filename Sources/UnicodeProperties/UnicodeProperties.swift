@@ -69,6 +69,23 @@ public enum UnicodeProperties {
         return raw == 0 ? scalar : (Unicode.Scalar(raw) ?? scalar)
     }
 
+    /// Whether `scalar` is a valid identifier-start character per UAX #31
+    /// (the `XID_Start` derived property — recommended for new code).
+    @inlinable
+    public static func isXIDStart(_ scalar: Unicode.Scalar) -> Bool {
+        xidStartTable.lookup(scalar.value) != 0
+    }
+
+    /// Whether `scalar` is a valid identifier-continuation character per
+    /// UAX #31 (the `XID_Continue` derived property).
+    ///
+    /// `XID_Start ⊂ XID_Continue` — every start codepoint is also a valid
+    /// continuation.
+    @inlinable
+    public static func isXIDContinue(_ scalar: Unicode.Scalar) -> Bool {
+        xidContinueTable.lookup(scalar.value) != 0
+    }
+
     /// Any L* category (uppercase, lowercase, titlecase, modifier, other).
     @inlinable
     public static func isLetter(_ scalar: Unicode.Scalar) -> Bool {
