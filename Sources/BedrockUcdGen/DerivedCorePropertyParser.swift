@@ -72,6 +72,29 @@ public enum DerivedCorePropertyParser {
     }
 }
 
+public extension Array where Element == DerivedCorePropertyEntry {
+    /// XID_Start: valid identifier-start codepoints per UAX #31.
+    func expandXIDStart() -> [UInt8] {
+        expand(matching: "XID_Start")
+    }
+
+    /// XID_Continue: valid identifier-continuation codepoints per UAX #31.
+    func expandXIDContinue() -> [UInt8] {
+        expand(matching: "XID_Continue")
+    }
+
+    /// Generic helper consumed by the property-specific entry points.
+    private func expand(matching propertyName: String) -> [UInt8] {
+        var out = [UInt8](repeating: 0, count: 0x110000)
+        for entry in self where entry.propertyName == propertyName {
+            for cp in entry.first...entry.last {
+                out[Int(cp)] = 1
+            }
+        }
+        return out
+    }
+}
+
 private extension String {
     func dcpTrimmed() -> String {
         var startIdx = self.startIndex
