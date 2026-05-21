@@ -145,3 +145,32 @@ do {
 let cfUncompacted = cfEntries.expandSimpleCaseFolding()
 emitUInt32("Sources/UnicodeProperties/Generated/SimpleCaseFoldingTable.swift",
             "simpleCaseFoldingTable", "simple case folding", cfUncompacted)
+
+print("---")
+print("Parsing DerivedCoreProperties.txt ...")
+let dcpPath = "Sources/UnicodeProperties/UCD/DerivedCoreProperties.txt"
+let dcpText: String
+do {
+    dcpText = try String(contentsOfFile: dcpPath, encoding: .utf8)
+} catch {
+    print("Failed to read \(dcpPath): \(error)")
+    exit(1)
+}
+let dcpEntries: [DerivedCorePropertyEntry]
+do {
+    dcpEntries = try DerivedCorePropertyParser.parse(dcpText)
+    print("Parsed \(dcpEntries.count) DerivedCoreProperty entries.")
+} catch {
+    print("DerivedCoreProperties parse error: \(error)")
+    exit(1)
+}
+
+print("---")
+print("Processing: XID_Start")
+emitUInt8("Sources/UnicodeProperties/Generated/XIDStartTable.swift",
+           "xidStartTable", "XID_Start", dcpEntries.expandXIDStart())
+
+print("---")
+print("Processing: XID_Continue")
+emitUInt8("Sources/UnicodeProperties/Generated/XIDContinueTable.swift",
+           "xidContinueTable", "XID_Continue", dcpEntries.expandXIDContinue())
