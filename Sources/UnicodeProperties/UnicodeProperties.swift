@@ -69,6 +69,34 @@ public enum UnicodeProperties {
         return raw == 0 ? scalar : (Unicode.Scalar(raw) ?? scalar)
     }
 
+    /// Full case folding (CaseFolding.txt statuses C + F — single OR
+    /// multi-codepoint output).
+    ///
+    /// Returns a non-empty array of `Unicode.Scalar`:
+    /// - For most codepoints (no folding): `[scalar]` (identity).
+    /// - For `C`-folded codepoints: `[targetCp]` (e.g., `"A"` → `["a"]`).
+    /// - For `F`-folded codepoints: 2–3 codepoints
+    ///   (e.g., `"ß"` (U+00DF) → `["s", "s"]`,
+    ///    `"İ"` (U+0130) → `["i", "\u{0307}"]`,
+    ///    `"ﬃ"` (U+FB03) → `["f", "f", "i"]`).
+    ///
+    /// Turkic-locale folding (status `T`) is locale-dependent and not
+    /// applied; consumers needing Turkish folding must override at a
+    /// higher layer.
+    @inlinable
+    public static func fullCaseFolded(of scalar: Unicode.Scalar) -> [Unicode.Scalar] {
+        let packed = fullCaseFoldingIndexTable.lookup(scalar.value)
+        if packed == 0 { return [scalar] }
+        let offset = Int(packed >> 8)
+        let length = Int(packed & 0xFF)
+        var result: [Unicode.Scalar] = []
+        result.reserveCapacity(length)
+        for i in 0..<length {
+            result.append(Unicode.Scalar(fullCaseFoldingFlatTable[offset + i])!)
+        }
+        return result
+    }
+
     /// Whether `scalar` is a valid identifier-start character per UAX #31
     /// (the `XID_Start` derived property — recommended for new code).
     @inlinable
