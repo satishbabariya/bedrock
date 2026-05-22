@@ -21,6 +21,7 @@ struct ExhaustiveTests {
             _ = UnicodeProperties.caseFolded(of: scalar)
             _ = UnicodeProperties.isXIDStart(scalar)
             _ = UnicodeProperties.isXIDContinue(scalar)
+            _ = UnicodeProperties.fullCaseFolded(of: scalar)
         }
     }
 }
