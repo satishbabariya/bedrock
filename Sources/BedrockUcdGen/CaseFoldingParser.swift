@@ -97,6 +97,41 @@ public extension Array where Element == CaseFoldingEntry {
         }
         return out
     }
+
+    /// Returns (indexTable, flatTable) for full case folding.
+    ///
+    /// indexTable: 0x110000-element [UInt32] where 0 = identity, else
+    ///   value = (offset << 8) | length pointing into flatTable.
+    /// flatTable: concatenated target codepoints. flatTable[0] is a
+    ///   reserved sentinel; real entries start at offset 1.
+    ///
+    /// Two-pass: C entries first (single-codepoint), then F entries
+    /// override them (full-folding spec). S and T entries skipped.
+    func expandFullCaseFolding() -> (index: [UInt32], flat: [UInt32]) {
+        var index = [UInt32](repeating: 0, count: 0x110000)
+        var flat: [UInt32] = [0]   // sentinel
+
+        for entry in self
+            where entry.status == .common && entry.mapping.count == 1 {
+            let offset = UInt32(flat.count)
+            flat.append(entry.mapping[0])
+            index[Int(entry.codepoint)] = (offset << 8) | 1
+        }
+
+        for entry in self
+            where entry.status == .full && !entry.mapping.isEmpty {
+            precondition(entry.mapping.count <= 0xFF,
+                         "F mapping length exceeds 8-bit encoding")
+            let offset = UInt32(flat.count)
+            precondition(offset < (1 << 24),
+                         "flat table offset exceeds 24-bit encoding")
+            for cp in entry.mapping { flat.append(cp) }
+            let length = UInt32(entry.mapping.count)
+            index[Int(entry.codepoint)] = (offset << 8) | length
+        }
+
+        return (index, flat)
+    }
 }
 
 private extension String {
