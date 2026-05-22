@@ -147,6 +147,26 @@ emitUInt32("Sources/UnicodeProperties/Generated/SimpleCaseFoldingTable.swift",
             "simpleCaseFoldingTable", "simple case folding", cfUncompacted)
 
 print("---")
+print("Processing: full case folding (CaseFolding.txt)")
+let (fcfIndex, fcfFlat) = cfEntries.expandFullCaseFolding()
+print("Full folding: flat table size = \(fcfFlat.count)")
+
+emitUInt32("Sources/UnicodeProperties/Generated/FullCaseFoldingIndexTable.swift",
+            "fullCaseFoldingIndexTable", "full case folding index", fcfIndex)
+
+let flatSrc = FlatArrayEmitter.emit(fcfFlat,
+                                     unicodeVersion: unicodeVersion,
+                                     globalName: "fullCaseFoldingFlatTable")
+let flatPath = "Sources/UnicodeProperties/Generated/FullCaseFoldingFlatTable.swift"
+do {
+    try flatSrc.write(toFile: flatPath, atomically: true, encoding: .utf8)
+    print("Wrote \(flatPath) (\(flatSrc.utf8.count) bytes).")
+} catch {
+    print("Write error: \(error)")
+    exit(1)
+}
+
+print("---")
 print("Parsing DerivedCoreProperties.txt ...")
 let dcpPath = "Sources/UnicodeProperties/UCD/DerivedCoreProperties.txt"
 let dcpText: String
