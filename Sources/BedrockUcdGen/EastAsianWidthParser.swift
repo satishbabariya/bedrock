@@ -70,6 +70,37 @@ public enum EastAsianWidthParser {
     }
 }
 
+public enum EastAsianWidthCode {
+    /// Map UCD EAW code to UInt8 raw value matching UnicodeProperties.EastAsianWidth.
+    public static func rawValue(for code: String) throws -> UInt8 {
+        switch code {
+        case "Na": return 0
+        case "W":  return 1
+        case "H":  return 2
+        case "F":  return 3
+        case "A":  return 4
+        case "N":  return 5
+        default:
+            throw EastAsianWidthParseError.invalidCodepoint(lineNumber: -1, raw: code)
+        }
+    }
+}
+
+public extension Array where Element == EastAsianWidthEntry {
+    /// Returns a 0x110000-element array of UInt8 raw values (0–5).
+    /// Default fill is 5 (N = Neutral) per the UCD file header.
+    func expandEastAsianWidth() throws -> [UInt8] {
+        var out = [UInt8](repeating: 5, count: 0x110000)
+        for entry in self {
+            let value = try EastAsianWidthCode.rawValue(for: entry.value)
+            for cp in entry.first...entry.last {
+                out[Int(cp)] = value
+            }
+        }
+        return out
+    }
+}
+
 private extension String {
     func eawTrimmed() -> String {
         var startIdx = self.startIndex
