@@ -72,6 +72,46 @@ public enum GraphemeBreakPropertyParser {
     }
 }
 
+public enum GraphemeClusterBreakCode {
+    /// Map UCD Grapheme_Cluster_Break value to UInt8 raw value matching
+    /// UnicodeProperties.GraphemeClusterBreak.
+    public static func rawValue(for value: String) throws -> UInt8 {
+        switch value {
+        case "Other":              return 0
+        case "CR":                 return 1
+        case "LF":                 return 2
+        case "Control":            return 3
+        case "Extend":             return 4
+        case "ZWJ":                return 5
+        case "Regional_Indicator": return 6
+        case "Prepend":            return 7
+        case "SpacingMark":        return 8
+        case "L":                  return 9
+        case "V":                  return 10
+        case "T":                  return 11
+        case "LV":                 return 12
+        case "LVT":                return 13
+        default:
+            throw GraphemeBreakPropertyParseError.invalidCodepoint(lineNumber: -1, raw: value)
+        }
+    }
+}
+
+public extension Array where Element == GraphemeBreakPropertyEntry {
+    /// Returns a 0x110000-element array of UInt8 raw values (0–13).
+    /// Default fill is 0 (Other) per the UCD `@missing` directive.
+    func expandGraphemeClusterBreak() throws -> [UInt8] {
+        var out = [UInt8](repeating: 0, count: 0x110000)
+        for entry in self {
+            let value = try GraphemeClusterBreakCode.rawValue(for: entry.value)
+            for cp in entry.first...entry.last {
+                out[Int(cp)] = value
+            }
+        }
+        return out
+    }
+}
+
 private extension String {
     func gbpTrimmed() -> String {
         var startIdx = self.startIndex
