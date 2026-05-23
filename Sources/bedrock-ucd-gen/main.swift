@@ -194,3 +194,33 @@ print("---")
 print("Processing: XID_Continue")
 emitUInt8("Sources/UnicodeProperties/Generated/XIDContinueTable.swift",
            "xidContinueTable", "XID_Continue", dcpEntries.expandXIDContinue())
+
+let extraDcpOutputs: [(String, String, String, () -> [UInt8])] = [
+    ("Sources/UnicodeProperties/Generated/IDStartTable.swift",
+     "idStartTable", "ID_Start",
+     { dcpEntries.expandIDStart() }),
+    ("Sources/UnicodeProperties/Generated/IDContinueTable.swift",
+     "idContinueTable", "ID_Continue",
+     { dcpEntries.expandIDContinue() }),
+    ("Sources/UnicodeProperties/Generated/MathTable.swift",
+     "mathTable", "Math",
+     { dcpEntries.expandMath() }),
+    ("Sources/UnicodeProperties/Generated/AlphabeticTable.swift",
+     "alphabeticTable", "Alphabetic",
+     { dcpEntries.expandAlphabetic() }),
+    ("Sources/UnicodeProperties/Generated/CasedTable.swift",
+     "casedTable", "Cased",
+     { dcpEntries.expandCased() }),
+    ("Sources/UnicodeProperties/Generated/LowercaseTable.swift",
+     "lowercaseTable", "Lowercase",
+     { dcpEntries.expandLowercase() }),
+    ("Sources/UnicodeProperties/Generated/UppercaseTable.swift",
+     "uppercaseTable", "Uppercase",
+     { dcpEntries.expandUppercase() }),
+]
+
+for (path, global, label, expand) in extraDcpOutputs {
+    print("---")
+    print("Processing: \(label)")
+    emitUInt8(path, global, label, expand())
+}
