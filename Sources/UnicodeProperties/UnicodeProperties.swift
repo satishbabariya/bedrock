@@ -172,6 +172,25 @@ public enum UnicodeProperties {
         return EastAsianWidth(rawValue: raw) ?? .neutral
     }
 
+    /// O(1) bracket-type lookup (UAX #9, `Bidi_Paired_Bracket_Type`).
+    ///
+    /// Returns `.none` for codepoints that are not bracket characters.
+    @inlinable
+    public static func bidiBracketType(of scalar: Unicode.Scalar) -> BidiBracketType {
+        let raw = bidiBracketTypeTable.lookup(scalar.value)
+        return BidiBracketType(rawValue: raw) ?? .none
+    }
+
+    /// O(1) paired-bracket lookup (UAX #9, `Bidi_Paired_Bracket`).
+    ///
+    /// Returns the mirrored partner codepoint for bracket characters
+    /// (e.g., `(` → `)`, `[` → `]`). Returns `nil` for non-brackets.
+    @inlinable
+    public static func pairedBracket(of scalar: Unicode.Scalar) -> Unicode.Scalar? {
+        let paired = bidiPairedBracketTable.lookup(scalar.value)
+        return paired == 0 ? nil : Unicode.Scalar(paired)
+    }
+
     /// Any L* category (uppercase, lowercase, titlecase, modifier, other).
     @inlinable
     public static func isLetter(_ scalar: Unicode.Scalar) -> Bool {
