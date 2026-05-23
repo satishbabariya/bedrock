@@ -114,6 +114,53 @@ public enum UnicodeProperties {
         xidContinueTable.lookup(scalar.value) != 0
     }
 
+    /// Whether `scalar` has the legacy `ID_Start` property (UAX #31).
+    ///
+    /// `XID_Start` is recommended for new code; `ID_Start` may admit
+    /// characters whose NFKx form would not be valid start characters.
+    @inlinable
+    public static func isIDStart(_ scalar: Unicode.Scalar) -> Bool {
+        idStartTable.lookup(scalar.value) != 0
+    }
+
+    /// Whether `scalar` has the legacy `ID_Continue` property (UAX #31).
+    @inlinable
+    public static func isIDContinue(_ scalar: Unicode.Scalar) -> Bool {
+        idContinueTable.lookup(scalar.value) != 0
+    }
+
+    /// Whether `scalar` is a math symbol (`Math` property: Sm + Other_Math).
+    @inlinable
+    public static func isMath(_ scalar: Unicode.Scalar) -> Bool {
+        mathTable.lookup(scalar.value) != 0
+    }
+
+    /// Whether `scalar` is alphabetic (`Alphabetic` property:
+    /// L* + Nl + Other_Alphabetic).
+    @inlinable
+    public static func isAlphabetic(_ scalar: Unicode.Scalar) -> Bool {
+        alphabeticTable.lookup(scalar.value) != 0
+    }
+
+    /// Whether `scalar` is cased (`Cased` property:
+    /// Lu + Ll + Lt + Other_Uppercase + Other_Lowercase).
+    @inlinable
+    public static func isCased(_ scalar: Unicode.Scalar) -> Bool {
+        casedTable.lookup(scalar.value) != 0
+    }
+
+    /// Whether `scalar` is lowercase (`Lowercase` property: Ll + Other_Lowercase).
+    @inlinable
+    public static func isLowercase(_ scalar: Unicode.Scalar) -> Bool {
+        lowercaseTable.lookup(scalar.value) != 0
+    }
+
+    /// Whether `scalar` is uppercase (`Uppercase` property: Lu + Other_Uppercase).
+    @inlinable
+    public static func isUppercase(_ scalar: Unicode.Scalar) -> Bool {
+        uppercaseTable.lookup(scalar.value) != 0
+    }
+
     /// Any L* category (uppercase, lowercase, titlecase, modifier, other).
     @inlinable
     public static func isLetter(_ scalar: Unicode.Scalar) -> Bool {
