@@ -74,6 +74,51 @@ public enum WordBreakPropertyParser {
     }
 }
 
+public enum WordBreakCode {
+    /// Map UCD Word_Break value to UInt8 raw value matching
+    /// UnicodeProperties.WordBreak.
+    public static func rawValue(for value: String) throws -> UInt8 {
+        switch value {
+        case "Other":              return 0
+        case "CR":                 return 1
+        case "LF":                 return 2
+        case "Newline":            return 3
+        case "Extend":             return 4
+        case "ZWJ":                return 5
+        case "Regional_Indicator": return 6
+        case "Format":             return 7
+        case "Katakana":           return 8
+        case "Hebrew_Letter":      return 9
+        case "ALetter":            return 10
+        case "Single_Quote":       return 11
+        case "Double_Quote":       return 12
+        case "MidNumLet":          return 13
+        case "MidLetter":          return 14
+        case "MidNum":             return 15
+        case "Numeric":            return 16
+        case "ExtendNumLet":       return 17
+        case "WSegSpace":          return 18
+        default:
+            throw WordBreakPropertyParseError.invalidCodepoint(lineNumber: -1, raw: value)
+        }
+    }
+}
+
+public extension Array where Element == WordBreakPropertyEntry {
+    /// Returns a 0x110000-element array of UInt8 raw values (0–18).
+    /// Default fill is 0 (Other) per the UCD `@missing` directive.
+    func expandWordBreak() throws -> [UInt8] {
+        var out = [UInt8](repeating: 0, count: 0x110000)
+        for entry in self {
+            let value = try WordBreakCode.rawValue(for: entry.value)
+            for cp in entry.first...entry.last {
+                out[Int(cp)] = value
+            }
+        }
+        return out
+    }
+}
+
 private extension String {
     func wbpTrimmed() -> String {
         var startIdx = self.startIndex
