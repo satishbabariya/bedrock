@@ -42,6 +42,9 @@ struct ExhaustiveTests {
             let wb = UnicodeProperties.wordBreak(of: scalar)
             #expect(wb.rawValue <= 18,
                     "out-of-range WB raw value at U+\(String(cp, radix: 16))")
+            let sb = UnicodeProperties.sentenceBreak(of: scalar)
+            #expect(sb.rawValue <= 14,
+                    "out-of-range SB raw value at U+\(String(cp, radix: 16))")
         }
     }
 }

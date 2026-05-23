@@ -213,6 +213,17 @@ public enum UnicodeProperties {
         return WordBreak(rawValue: raw) ?? .other
     }
 
+    /// O(1) Sentence_Break lookup (UAX #29).
+    ///
+    /// Returns the per-codepoint SB property value used by sentence-
+    /// segmentation algorithms. Returns `.other` for codepoints absent
+    /// from `SentenceBreakProperty.txt` (the UCD default per @missing).
+    @inlinable
+    public static func sentenceBreak(of scalar: Unicode.Scalar) -> SentenceBreak {
+        let raw = sentenceBreakTable.lookup(scalar.value)
+        return SentenceBreak(rawValue: raw) ?? .other
+    }
+
     /// Any L* category (uppercase, lowercase, titlecase, modifier, other).
     @inlinable
     public static func isLetter(_ scalar: Unicode.Scalar) -> Bool {
