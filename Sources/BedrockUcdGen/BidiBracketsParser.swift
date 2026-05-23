@@ -67,6 +67,31 @@ public enum BidiBracketsParser {
     }
 }
 
+public extension Array where Element == BidiBracketEntry {
+    /// Returns a 0x110000-element array of UInt8 type codes.
+    /// Default 0 (none); 1 = open, 2 = close.
+    func expandBidiBracketType() -> [UInt8] {
+        var out = [UInt8](repeating: 0, count: 0x110000)
+        for entry in self {
+            switch entry.type {
+            case .open:  out[Int(entry.codepoint)] = 1
+            case .close: out[Int(entry.codepoint)] = 2
+            }
+        }
+        return out
+    }
+
+    /// Returns a 0x110000-element array of UInt32 paired codepoints.
+    /// Default 0 (no pair); nonzero = target codepoint.
+    func expandBidiPairedBracket() -> [UInt32] {
+        var out = [UInt32](repeating: 0, count: 0x110000)
+        for entry in self {
+            out[Int(entry.codepoint)] = entry.pairedCodepoint
+        }
+        return out
+    }
+}
+
 private extension String {
     func bbTrimmed() -> String {
         var startIdx = self.startIndex
