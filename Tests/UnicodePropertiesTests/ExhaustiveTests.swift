@@ -39,6 +39,9 @@ struct ExhaustiveTests {
             let gcb = UnicodeProperties.graphemeClusterBreak(of: scalar)
             #expect(gcb.rawValue <= 13,
                     "out-of-range GCB raw value at U+\(String(cp, radix: 16))")
+            let sb = UnicodeProperties.sentenceBreak(of: scalar)
+            #expect(sb.rawValue <= 14,
+                    "out-of-range SB raw value at U+\(String(cp, radix: 16))")
         }
     }
 }
