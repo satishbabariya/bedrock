@@ -202,6 +202,17 @@ public enum UnicodeProperties {
         return GraphemeClusterBreak(rawValue: raw) ?? .other
     }
 
+    /// O(1) Word_Break lookup (UAX #29).
+    ///
+    /// Returns the per-codepoint WB property value used by word-
+    /// segmentation algorithms. Returns `.other` for codepoints absent
+    /// from `WordBreakProperty.txt` (the UCD default per @missing).
+    @inlinable
+    public static func wordBreak(of scalar: Unicode.Scalar) -> WordBreak {
+        let raw = wordBreakTable.lookup(scalar.value)
+        return WordBreak(rawValue: raw) ?? .other
+    }
+
     /// Any L* category (uppercase, lowercase, titlecase, modifier, other).
     @inlinable
     public static func isLetter(_ scalar: Unicode.Scalar) -> Bool {

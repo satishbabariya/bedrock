@@ -317,3 +317,34 @@ print("---")
 print("Processing: Grapheme_Cluster_Break")
 emitUInt8("Sources/UnicodeProperties/Generated/GraphemeClusterBreakTable.swift",
            "graphemeClusterBreakTable", "Grapheme_Cluster_Break", gbpUncompacted)
+
+print("---")
+print("Parsing WordBreakProperty.txt ...")
+let wbpPath = "Sources/UnicodeProperties/UCD/WordBreakProperty.txt"
+let wbpText: String
+do {
+    wbpText = try String(contentsOfFile: wbpPath, encoding: .utf8)
+} catch {
+    print("Failed to read \(wbpPath): \(error)")
+    exit(1)
+}
+let wbpEntries: [WordBreakPropertyEntry]
+do {
+    wbpEntries = try WordBreakPropertyParser.parse(wbpText)
+    print("Parsed \(wbpEntries.count) WordBreakProperty entries.")
+} catch {
+    print("WordBreakProperty parse error: \(error)")
+    exit(1)
+}
+let wbpUncompacted: [UInt8]
+do {
+    wbpUncompacted = try wbpEntries.expandWordBreak()
+} catch {
+    print("WordBreak expansion error: \(error)")
+    exit(1)
+}
+
+print("---")
+print("Processing: Word_Break")
+emitUInt8("Sources/UnicodeProperties/Generated/WordBreakTable.swift",
+           "wordBreakTable", "Word_Break", wbpUncompacted)
