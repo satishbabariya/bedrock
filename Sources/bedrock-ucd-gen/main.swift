@@ -255,3 +255,34 @@ print("---")
 print("Processing: East Asian Width")
 emitUInt8("Sources/UnicodeProperties/Generated/EastAsianWidthTable.swift",
            "eastAsianWidthTable", "East Asian Width", eawUncompacted)
+
+print("---")
+print("Parsing BidiBrackets.txt ...")
+let bbPath = "Sources/UnicodeProperties/UCD/BidiBrackets.txt"
+let bbText: String
+do {
+    bbText = try String(contentsOfFile: bbPath, encoding: .utf8)
+} catch {
+    print("Failed to read \(bbPath): \(error)")
+    exit(1)
+}
+let bbEntries: [BidiBracketEntry]
+do {
+    bbEntries = try BidiBracketsParser.parse(bbText)
+    print("Parsed \(bbEntries.count) BidiBracket entries.")
+} catch {
+    print("BidiBrackets parse error: \(error)")
+    exit(1)
+}
+
+print("---")
+print("Processing: Bidi Bracket Type")
+emitUInt8("Sources/UnicodeProperties/Generated/BidiBracketTypeTable.swift",
+           "bidiBracketTypeTable", "Bidi Bracket Type",
+           bbEntries.expandBidiBracketType())
+
+print("---")
+print("Processing: Bidi Paired Bracket")
+emitUInt32("Sources/UnicodeProperties/Generated/BidiPairedBracketTable.swift",
+            "bidiPairedBracketTable", "Bidi Paired Bracket",
+            bbEntries.expandBidiPairedBracket())
