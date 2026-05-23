@@ -32,6 +32,10 @@ struct ExhaustiveTests {
             let eaw = UnicodeProperties.eastAsianWidth(of: scalar)
             #expect(eaw.rawValue <= 5,
                     "out-of-range EAW raw value at U+\(String(cp, radix: 16))")
+            let bbt = UnicodeProperties.bidiBracketType(of: scalar)
+            #expect(bbt.rawValue <= 2,
+                    "out-of-range BidiBracketType raw value at U+\(String(cp, radix: 16))")
+            _ = UnicodeProperties.pairedBracket(of: scalar)
         }
     }
 }
