@@ -29,6 +29,9 @@ struct ExhaustiveTests {
             _ = UnicodeProperties.isLowercase(scalar)
             _ = UnicodeProperties.isUppercase(scalar)
             _ = UnicodeProperties.fullCaseFolded(of: scalar)
+            let eaw = UnicodeProperties.eastAsianWidth(of: scalar)
+            #expect(eaw.rawValue <= 5,
+                    "out-of-range EAW raw value at U+\(String(cp, radix: 16))")
         }
     }
 }

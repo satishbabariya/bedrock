@@ -161,6 +161,17 @@ public enum UnicodeProperties {
         uppercaseTable.lookup(scalar.value) != 0
     }
 
+    /// O(1) East Asian Width lookup (UAX #11).
+    ///
+    /// Used by terminal layout (each codepoint occupies 1 or 2 visual
+    /// columns) and CJK-aware text rendering. Returns `.neutral` for
+    /// codepoints absent from `EastAsianWidth.txt` (the UCD default).
+    @inlinable
+    public static func eastAsianWidth(of scalar: Unicode.Scalar) -> EastAsianWidth {
+        let raw = eastAsianWidthTable.lookup(scalar.value)
+        return EastAsianWidth(rawValue: raw) ?? .neutral
+    }
+
     /// Any L* category (uppercase, lowercase, titlecase, modifier, other).
     @inlinable
     public static func isLetter(_ scalar: Unicode.Scalar) -> Bool {
