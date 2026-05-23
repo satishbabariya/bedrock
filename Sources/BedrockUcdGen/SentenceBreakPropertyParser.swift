@@ -72,6 +72,47 @@ public enum SentenceBreakPropertyParser {
     }
 }
 
+public enum SentenceBreakCode {
+    /// Map UCD Sentence_Break value to UInt8 raw value matching
+    /// UnicodeProperties.SentenceBreak.
+    public static func rawValue(for value: String) throws -> UInt8 {
+        switch value {
+        case "Other":     return 0
+        case "CR":        return 1
+        case "LF":        return 2
+        case "Sep":       return 3
+        case "Extend":    return 4
+        case "Format":    return 5
+        case "Sp":        return 6
+        case "Lower":     return 7
+        case "Upper":     return 8
+        case "OLetter":   return 9
+        case "Numeric":   return 10
+        case "ATerm":     return 11
+        case "STerm":     return 12
+        case "SContinue": return 13
+        case "Close":     return 14
+        default:
+            throw SentenceBreakPropertyParseError.invalidCodepoint(lineNumber: -1, raw: value)
+        }
+    }
+}
+
+public extension Array where Element == SentenceBreakPropertyEntry {
+    /// Returns a 0x110000-element array of UInt8 raw values (0–14).
+    /// Default fill is 0 (Other) per the UCD `@missing` directive.
+    func expandSentenceBreak() throws -> [UInt8] {
+        var out = [UInt8](repeating: 0, count: 0x110000)
+        for entry in self {
+            let value = try SentenceBreakCode.rawValue(for: entry.value)
+            for cp in entry.first...entry.last {
+                out[Int(cp)] = value
+            }
+        }
+        return out
+    }
+}
+
 private extension String {
     func sbpTrimmed() -> String {
         var startIdx = self.startIndex
