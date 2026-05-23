@@ -172,6 +172,17 @@ public enum UnicodeProperties {
         return EastAsianWidth(rawValue: raw) ?? .neutral
     }
 
+    /// O(1) Grapheme_Cluster_Break lookup (UAX #29).
+    ///
+    /// Returns the per-codepoint GCB property value used by grapheme-
+    /// cluster segmentation. Returns `.other` for codepoints absent from
+    /// `GraphemeBreakProperty.txt` (the UCD default per @missing).
+    @inlinable
+    public static func graphemeClusterBreak(of scalar: Unicode.Scalar) -> GraphemeClusterBreak {
+        let raw = graphemeClusterBreakTable.lookup(scalar.value)
+        return GraphemeClusterBreak(rawValue: raw) ?? .other
+    }
+
     /// Any L* category (uppercase, lowercase, titlecase, modifier, other).
     @inlinable
     public static func isLetter(_ scalar: Unicode.Scalar) -> Bool {
