@@ -83,6 +83,27 @@ public extension Array where Element == DerivedCorePropertyEntry {
         expand(matching: "XID_Continue")
     }
 
+    /// ID_Start: legacy identifier-start codepoints per UAX #31.
+    func expandIDStart() -> [UInt8]     { expand(matching: "ID_Start") }
+
+    /// ID_Continue: legacy identifier-continuation codepoints per UAX #31.
+    func expandIDContinue() -> [UInt8]  { expand(matching: "ID_Continue") }
+
+    /// Math: Sm + Other_Math.
+    func expandMath() -> [UInt8]        { expand(matching: "Math") }
+
+    /// Alphabetic: L* + Nl + Other_Alphabetic.
+    func expandAlphabetic() -> [UInt8]  { expand(matching: "Alphabetic") }
+
+    /// Cased: Lu + Ll + Lt + Other_Uppercase + Other_Lowercase.
+    func expandCased() -> [UInt8]       { expand(matching: "Cased") }
+
+    /// Lowercase: Ll + Other_Lowercase.
+    func expandLowercase() -> [UInt8]   { expand(matching: "Lowercase") }
+
+    /// Uppercase: Lu + Other_Uppercase.
+    func expandUppercase() -> [UInt8]   { expand(matching: "Uppercase") }
+
     /// Generic helper consumed by the property-specific entry points.
     private func expand(matching propertyName: String) -> [UInt8] {
         var out = [UInt8](repeating: 0, count: 0x110000)

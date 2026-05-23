@@ -88,4 +88,24 @@ struct IdentifierTests {
             }
         }
     }
+
+    @Test
+    func idStartMatchesXIDStartForBasicASCII() {
+        // For common ASCII letters, ID_Start and XID_Start agree.
+        for cp: UInt32 in 0x41...0x7A where (cp <= 0x5A || cp >= 0x61) {
+            let s = Unicode.Scalar(cp)!
+            #expect(UnicodeProperties.isIDStart(s) == true,
+                    "Expected isIDStart true for U+\(String(cp, radix: 16))")
+            #expect(UnicodeProperties.isIDContinue(s) == true,
+                    "Expected isIDContinue true for U+\(String(cp, radix: 16))")
+        }
+    }
+
+    @Test
+    func idStartFalseForSpaceAndPunctuation() {
+        #expect(UnicodeProperties.isIDStart(" ") == false)
+        #expect(UnicodeProperties.isIDStart("!") == false)
+        #expect(UnicodeProperties.isIDStart("5") == false)
+        #expect(UnicodeProperties.isIDContinue(" ") == false)
+    }
 }

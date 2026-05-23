@@ -21,6 +21,13 @@ struct ExhaustiveTests {
             _ = UnicodeProperties.caseFolded(of: scalar)
             _ = UnicodeProperties.isXIDStart(scalar)
             _ = UnicodeProperties.isXIDContinue(scalar)
+            _ = UnicodeProperties.isIDStart(scalar)
+            _ = UnicodeProperties.isIDContinue(scalar)
+            _ = UnicodeProperties.isMath(scalar)
+            _ = UnicodeProperties.isAlphabetic(scalar)
+            _ = UnicodeProperties.isCased(scalar)
+            _ = UnicodeProperties.isLowercase(scalar)
+            _ = UnicodeProperties.isUppercase(scalar)
             _ = UnicodeProperties.fullCaseFolded(of: scalar)
         }
     }
