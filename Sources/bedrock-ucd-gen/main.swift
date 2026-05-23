@@ -317,3 +317,34 @@ print("---")
 print("Processing: Grapheme_Cluster_Break")
 emitUInt8("Sources/UnicodeProperties/Generated/GraphemeClusterBreakTable.swift",
            "graphemeClusterBreakTable", "Grapheme_Cluster_Break", gbpUncompacted)
+
+print("---")
+print("Parsing SentenceBreakProperty.txt ...")
+let sbpPath = "Sources/UnicodeProperties/UCD/SentenceBreakProperty.txt"
+let sbpText: String
+do {
+    sbpText = try String(contentsOfFile: sbpPath, encoding: .utf8)
+} catch {
+    print("Failed to read \(sbpPath): \(error)")
+    exit(1)
+}
+let sbpEntries: [SentenceBreakPropertyEntry]
+do {
+    sbpEntries = try SentenceBreakPropertyParser.parse(sbpText)
+    print("Parsed \(sbpEntries.count) SentenceBreakProperty entries.")
+} catch {
+    print("SentenceBreakProperty parse error: \(error)")
+    exit(1)
+}
+let sbpUncompacted: [UInt8]
+do {
+    sbpUncompacted = try sbpEntries.expandSentenceBreak()
+} catch {
+    print("SentenceBreak expansion error: \(error)")
+    exit(1)
+}
+
+print("---")
+print("Processing: Sentence_Break")
+emitUInt8("Sources/UnicodeProperties/Generated/SentenceBreakTable.swift",
+           "sentenceBreakTable", "Sentence_Break", sbpUncompacted)
