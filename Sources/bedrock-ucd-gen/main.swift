@@ -286,3 +286,34 @@ print("Processing: Bidi Paired Bracket")
 emitUInt32("Sources/UnicodeProperties/Generated/BidiPairedBracketTable.swift",
             "bidiPairedBracketTable", "Bidi Paired Bracket",
             bbEntries.expandBidiPairedBracket())
+
+print("---")
+print("Parsing GraphemeBreakProperty.txt ...")
+let gbpPath = "Sources/UnicodeProperties/UCD/GraphemeBreakProperty.txt"
+let gbpText: String
+do {
+    gbpText = try String(contentsOfFile: gbpPath, encoding: .utf8)
+} catch {
+    print("Failed to read \(gbpPath): \(error)")
+    exit(1)
+}
+let gbpEntries: [GraphemeBreakPropertyEntry]
+do {
+    gbpEntries = try GraphemeBreakPropertyParser.parse(gbpText)
+    print("Parsed \(gbpEntries.count) GraphemeBreakProperty entries.")
+} catch {
+    print("GraphemeBreakProperty parse error: \(error)")
+    exit(1)
+}
+let gbpUncompacted: [UInt8]
+do {
+    gbpUncompacted = try gbpEntries.expandGraphemeClusterBreak()
+} catch {
+    print("GraphemeClusterBreak expansion error: \(error)")
+    exit(1)
+}
+
+print("---")
+print("Processing: Grapheme_Cluster_Break")
+emitUInt8("Sources/UnicodeProperties/Generated/GraphemeClusterBreakTable.swift",
+           "graphemeClusterBreakTable", "Grapheme_Cluster_Break", gbpUncompacted)

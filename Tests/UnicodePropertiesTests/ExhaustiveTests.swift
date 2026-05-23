@@ -36,6 +36,9 @@ struct ExhaustiveTests {
             #expect(bbt.rawValue <= 2,
                     "out-of-range BidiBracketType raw value at U+\(String(cp, radix: 16))")
             _ = UnicodeProperties.pairedBracket(of: scalar)
+            let gcb = UnicodeProperties.graphemeClusterBreak(of: scalar)
+            #expect(gcb.rawValue <= 13,
+                    "out-of-range GCB raw value at U+\(String(cp, radix: 16))")
         }
     }
 }
