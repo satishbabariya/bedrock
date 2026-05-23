@@ -194,3 +194,34 @@ print("---")
 print("Processing: XID_Continue")
 emitUInt8("Sources/UnicodeProperties/Generated/XIDContinueTable.swift",
            "xidContinueTable", "XID_Continue", dcpEntries.expandXIDContinue())
+
+print("---")
+print("Parsing EastAsianWidth.txt ...")
+let eawPath = "Sources/UnicodeProperties/UCD/EastAsianWidth.txt"
+let eawText: String
+do {
+    eawText = try String(contentsOfFile: eawPath, encoding: .utf8)
+} catch {
+    print("Failed to read \(eawPath): \(error)")
+    exit(1)
+}
+let eawEntries: [EastAsianWidthEntry]
+do {
+    eawEntries = try EastAsianWidthParser.parse(eawText)
+    print("Parsed \(eawEntries.count) EastAsianWidth entries.")
+} catch {
+    print("EastAsianWidth parse error: \(error)")
+    exit(1)
+}
+let eawUncompacted: [UInt8]
+do {
+    eawUncompacted = try eawEntries.expandEastAsianWidth()
+} catch {
+    print("EastAsianWidth expansion error: \(error)")
+    exit(1)
+}
+
+print("---")
+print("Processing: East Asian Width")
+emitUInt8("Sources/UnicodeProperties/Generated/EastAsianWidthTable.swift",
+           "eastAsianWidthTable", "East Asian Width", eawUncompacted)
