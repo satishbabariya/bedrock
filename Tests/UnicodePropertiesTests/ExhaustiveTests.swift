@@ -32,6 +32,9 @@ struct ExhaustiveTests {
             let eaw = UnicodeProperties.eastAsianWidth(of: scalar)
             #expect(eaw.rawValue <= 5,
                     "out-of-range EAW raw value at U+\(String(cp, radix: 16))")
+            let gcb = UnicodeProperties.graphemeClusterBreak(of: scalar)
+            #expect(gcb.rawValue <= 13,
+                    "out-of-range GCB raw value at U+\(String(cp, radix: 16))")
         }
     }
 }
